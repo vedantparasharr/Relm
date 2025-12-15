@@ -34,9 +34,41 @@ app.post("/createUser", async (req, res) => {
     dateOfBirth,
   });
 
-  const token = jwt.sign({ email: email }, 'mysecretkey');
+  const token = jwt.sign({ email: email, userId: newUser._id }, "mysecretkey");
   res.cookie("token", token, { httpOnly: true });
 
+  res.redirect("/auth/signin");
+});
+
+app.get("/auth/signin", (req, res) => {
+  res.render("signin");
+});
+
+app.post("/auth/signin", async (req, res) => {
+  const { email, password, remember } = req.body;
+
+  const user = await userModel.findOne({ email: email });
+  if (!user) return res.status(400).send("Invalid email or password");
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid)
+    return res.status(400).send("Invalid email or password");
+
+  let token;
+  if (remember) {
+    token = jwt.sign({ email: email, userId: user._id }, "mysecretkey");
+  } else {
+    token = jwt.sign(
+      {
+        email: email,
+        userId: user._id,
+      },
+      "mysecretkey",
+      { expiresIn: "1h" }
+    );
+  }
+
+  res.cookie("token", token, { httpOnly: true });
   res.redirect("/");
 });
 

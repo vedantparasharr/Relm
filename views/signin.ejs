@@ -3,48 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register</title>
+    <title>Sign In</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
   <body
-    class="min-h-screen bg-zinc-900 text-white flex items-center justify-center p-6 tracking-tight"
+    class="min-h-screen bg-zinc-900 text-white flex items-center justify-center p-6"
   >
     <main class="w-full max-w-md">
       <section
         class="bg-zinc-800/70 backdrop-blur-sm rounded-2xl shadow-lg p-8"
       >
         <h1 class="text-2xl font-semibold mb-4 text-center">
-          Create an account
+          Sign in to your account
         </h1>
         <p class="text-sm text-zinc-300 mb-6 text-center">
-          Join and start creating posts
+          Welcome back, enter your details to continue
         </p>
 
-        <form action="/createUser" method="POST" class="space-y-4">
-          <div>
-            <label for="username" class="block text-sm mb-1">Username</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              required
-              class="w-full px-3 py-2 rounded-lg bg-zinc-900/40 border border-zinc-700 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="yourusername"
-            />
-          </div>
-
-          <div>
-            <label for="name" class="block text-sm mb-1">Full name</label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              class="w-full px-3 py-2 rounded-lg bg-zinc-900/40 border border-zinc-700 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Alex Carter"
-            />
-          </div>
-
+        <form action="/auth/signin" method="POST" class="space-y-4">
           <div>
             <label for="email" class="block text-sm mb-1">Email</label>
             <input
@@ -70,29 +46,31 @@
             />
           </div>
 
-          <div>
-            <label for="dateOfBirth" class="block text-sm mb-1"
-              >Date of birth</label
+          <div class="flex items-center justify-between text-sm">
+            <label class="inline-flex items-center gap-2">
+              <input
+                type="checkbox"
+                name="remember"
+                class="h-4 w-4 rounded border-zinc-600 bg-zinc-900 focus:ring-2 focus:ring-blue-500"
+              />
+              <span class="text-zinc-300">Remember me</span>
+            </label>
+            <a href="#" class="text-sm text-blue-400 hover:underline"
+              >Forgot password?</a
             >
-            <input
-              id="dateOfBirth"
-              name="dateOfBirth"
-              type="date"
-              class="w-full px-3 py-2 rounded-lg bg-zinc-900/40 border border-zinc-700 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-blue-500"
-            />
           </div>
 
           <button
             type="submit"
             class="w-full mt-2 py-2 rounded-lg font-medium text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95"
           >
-            Create account
+            Sign in
           </button>
         </form>
 
         <p class="text-center text-xs text-zinc-400 mt-4">
-          Already have an account?
-          <a href="/auth/signin" class="text-blue-400 hover:underline">Sign in</a>
+          Don't have an account?
+          <a href="/" class="text-blue-400 hover:underline">Create one</a>
         </p>
       </section>
 

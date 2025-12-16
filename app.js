@@ -12,13 +12,11 @@ const postModel = require("./models/postModel");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
-
 // ======================
 // App Initialization
 // ======================
 const app = express();
 const port = 3000;
-
 
 // ======================
 // App Configuration
@@ -28,7 +26,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-
 
 // ======================
 // Authentication Middleware
@@ -45,14 +42,12 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-
 // ======================
 // Public Routes
 // ======================
 app.get("/", (req, res) => {
   res.render("index");
 });
-
 
 // ======================
 // Authentication Routes
@@ -75,7 +70,7 @@ app.post("/createUser", async (req, res) => {
   const token = jwt.sign({ email: email, userId: newUser._id }, "mysecretkey");
   res.cookie("token", token, { httpOnly: true });
 
-  res.redirect("/auth/signin");
+  res.redirect("/profile");
 });
 
 app.get("/auth/signin", (req, res) => {
@@ -96,11 +91,9 @@ app.post("/auth/signin", async (req, res) => {
   if (remember) {
     token = jwt.sign({ email: email, userId: user._id }, "mysecretkey");
   } else {
-    token = jwt.sign(
-      { email: email, userId: user._id },
-      "mysecretkey",
-      { expiresIn: "1h" }
-    );
+    token = jwt.sign({ email: email, userId: user._id }, "mysecretkey", {
+      expiresIn: "1h",
+    });
   }
 
   res.cookie("token", token, { httpOnly: true });
@@ -111,7 +104,6 @@ app.get("/auth/signout", (req, res) => {
   res.clearCookie("token");
   res.redirect("/");
 });
-
 
 // ======================
 // Profile Routes
@@ -157,7 +149,6 @@ app.post("/profile/edit", verifyToken, async (req, res) => {
   if (!user) return res.status(404).send("User not found");
   res.redirect("/profile");
 });
-
 
 // ======================
 // Profile Settings Routes
@@ -221,7 +212,6 @@ app.post("/profile/settings", verifyToken, async (req, res) => {
   res.redirect("/profile");
 });
 
-
 // ======================
 // Post Routes
 // ======================
@@ -235,11 +225,15 @@ app.post("/posts", verifyToken, async (req, res) => {
   const user = await userModel.findById(req.user.userId);
 
   try {
-    await postModel.create({
+    const newPost = await postModel.create({
       author: user._id,
       title: title.trim(),
       content: content.trim(),
     });
+    const updatePostInUser = await userModel.findByIdAndUpdate(user._id, {
+      $push: { posts: newPost._id },
+    });
+
     res.redirect("/profile");
   } catch (error) {
     res.status(500).send("Error creating post");
@@ -286,9 +280,11 @@ app.get("/posts/:id/delete", verifyToken, async (req, res) => {
     return res.status(403).send("Unauthorized");
 
   await postModel.findByIdAndDelete(req.params.id);
+  await userModel.findByIdAndUpdate(req.user.userId, {
+    $pull: { posts: req.params.id },
+  });
   res.redirect("/profile");
 });
-
 
 // ======================
 // Server Start

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>
+      <%= post.title %> • <%= post.author.username || post.author.name ||
+      'Author' %>
+    </title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+
+  <body class="min-h-screen bg-zinc-900 text-white">
+    <main class="max-w-3xl mx-auto px-6 py-10">
+      <!-- Back -->
+      <div class="mb-6">
+        <a href="/profile" class="text-sm text-zinc-400 hover:text-white"
+          >← Back to profile</a
+        >
+      </div>
+
+      <!-- Post header -->
+      <article class="bg-zinc-800/60 p-6 rounded-2xl shadow-sm">
+        <header class="mb-6">
+          <h1 class="text-2xl font-semibold tracking-tight mb-3">
+            <%= post.title %>
+          </h1>
+
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <img
+                src="<%= post.author && post.author.image %>"
+                alt="author avatar"
+                class="w-12 h-12 rounded-full object-cover bg-zinc-700"
+              />
+              <div class="text-sm">
+                <div class="font-medium">
+                  <% if (post.author && post.author._id &&
+                  String(post.author._id) === String(user._id)) { %> You <% }
+                  else { %> <%= post.author.name || post.author.username ||
+                  'Author' %> <% } %>
+                </div>
+                <div class="text-zinc-400 text-xs">
+                  <%= dayjs(post.createdAt).format('DD MMM YYYY') %>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <% /* Show edit if current user is the author */ %> <% if
+              (post.author && post.author._id && String(post.author._id) ===
+              String(user._id)) { %>
+              <a
+                href="/posts/<%= post._id %>/edit"
+                class="px-3 py-1 text-sm rounded-lg border border-zinc-700 hover:bg-zinc-800"
+              >
+                Edit
+              </a>
+              <% } %>
+
+              <button
+                class="px-3 py-1 rounded-lg bg-zinc-700/50 text-sm flex items-center gap-2 cursor-not-allowed opacity-70"
+                title="Like feature coming soon"
+              >
+                ❤️
+                <span><%= post.likes.length %></span>
+                <span class="text-xs text-zinc-300">Like</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Post body -->
+        <section class="prose max-w-none text-sm text-zinc-100">
+          <div class="leading-7 text-zinc-100"><%= post.content %></div>
+        </section>
+
+        <!-- Footer meta -->
+        <footer
+          class="mt-6 text-xs text-zinc-500 flex items-center justify-between"
+        >
+          <div>
+            <span>Author: </span>
+            <span class="text-zinc-200"
+              ><%= post.author.username || post.author.name || 'Author' %></span
+            >
+          </div>
+
+          <div>
+            <span>Views: </span>
+            <span class="text-zinc-200">—</span>
+          </div>
+        </footer>
+      </article>
+    </main>
+  </body>
+</html>

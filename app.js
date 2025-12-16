@@ -286,6 +286,30 @@ app.get("/posts/:id/delete", verifyToken, async (req, res) => {
   res.redirect("/profile");
 });
 
+app.post("/posts/:id/like", verifyToken, async (req, res) => {
+  const post = await postModel.findById(req.params.id);
+  const userId = req.user.userId;
+  if (!post) return res.status(403).send("Post not found!");
+
+  const hasLiked = post.likes.some((u) => u.toString() === userId.toString());
+  if (hasLiked) {
+    await postModel.findByIdAndUpdate(post._id, {
+      $pull: { likes: userId },
+    });
+  } else {
+    await postModel.findByIdAndUpdate(post._id, {
+      $addToSet: { likes: userId },
+    });
+  }
+
+  const updatedPost = await postModel.findById(post._id);
+
+  res.json({
+    liked: !hasLiked,
+    likesCount: updatedPost.likes.length,
+  });
+});
+
 // ======================
 // Server Start
 // ======================

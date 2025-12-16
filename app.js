@@ -1,3 +1,4 @@
+const dayjs = require("dayjs");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -21,7 +22,6 @@ const verifyToken = (req, res, next) => {
   if (!token) return res.status(401).send("Access Denied");
   try {
     const verified = jwt.verify(token, "mysecretkey");
-    console.log(verified);
     req.user = verified;
     next();
   } catch (err) {
@@ -93,7 +93,162 @@ app.get("/auth/signout", (req, res) => {
 
 app.get("/profile", verifyToken, async (req, res) => {
   const user = await userModel.findById(req.user.userId);
-  res.render("profile", { user });
+  const posts = await postModel
+    .find({ author: user._id })
+    .populate("author")
+    .populate("likes");
+  res.render("profile", { user, posts, dayjs });
+});
+
+app.get("/posts/new", verifyToken, async (req, res) => {
+  const user = await userModel.findById(req.user.userId);
+  res.render("createPost", { user });
+});
+
+app.post("/posts", verifyToken, async (req, res) => {
+  const { title, content } = req.body;
+  const user = await userModel.findById(req.user.userId);
+  try {
+    const newPost = await postModel.create({
+      author: user._id,
+      title: title.trim(),
+      content: content.trim(),
+    });
+    res.redirect("/profile");
+  } catch (error) {
+    res.status(500).send("Error creating post");
+  }
+});
+
+app.get("/posts/:id", verifyToken, async (req, res) => {
+  const post = await postModel
+    .findById(req.params.id)
+    .populate("author")
+    .populate("likes");
+  const user = await userModel.findById(req.user.userId);
+  res.render("postDetail", { post, user, dayjs });
+});
+
+app.get("/posts/:id/edit", verifyToken, async (req, res) => {
+  const post = await postModel.findById(req.params.id);
+  const user = await userModel.findById(req.user.userId);
+  if (!post) return res.status(404).send("Post not found");
+  if (post.author.toString() !== req.user.userId) {
+    return res.status(403).send("Unauthorized");
+  } else {
+    res.render("editPost", { post, user });
+  }
+});
+
+app.post("/posts/:id/edit", verifyToken, async (req, res) => {
+  const { title, content } = req.body;
+  await postModel.findByIdAndUpdate(req.params.id, {
+    title: title.trim(),
+    content: content.trim(),
+  });
+  res.redirect(`/posts/${req.params.id}`);
+});
+
+app.get("/posts/:id/delete", verifyToken, async (req, res) => {
+  const post = await postModel.findById(req.params.id);
+  if (!post) {
+    return res.status(404).send("Post not found");
+  }
+  if (post.author.toString() !== req.user.userId) {
+    return res.status(403).send("Unauthorized");
+  } else {
+    await postModel.findByIdAndDelete(req.params.id);
+  }
+  res.redirect("/profile");
+});
+
+app.get("/profile/about", verifyToken, async (req, res) => {
+  const user = await userModel.findById(req.user.userId);
+  const posts = await postModel
+    .find({ author: user._id })
+    .populate("author")
+    .populate("likes");
+  if (!user) return res.status(404).send("User not found");
+  res.render("about", { user, posts, dayjs });
+});
+
+app.get("/profile/settings", verifyToken, async (req, res) => {
+  const user = await userModel.findById(req.user.userId);
+  if (!user) return res.status(404).send("User not found");
+  res.render("settings", { user, dayjs });
+});
+
+app.post("/profile/settings", verifyToken, async (req, res) => {
+  const {
+    name,
+    username,
+    dateOfBirth,
+    website,
+    image,
+    bio,
+    currentPassword,
+    newPassword,
+    confirmPassword,
+  } = req.body;
+
+  let hashedNewPassword;
+
+  const user = await userModel.findById(req.user.userId);
+  if (!user) return res.status(404).send("User not found");
+
+  const isUserChangingPassword =
+    currentPassword || newPassword || confirmPassword;
+  if (isUserChangingPassword) {
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+    if (!isPasswordValid)
+      return res.status(400).send("Current password is incorrect");
+    if (newPassword !== confirmPassword)
+      return res.status(400).send("New passwords do not match");
+    hashedNewPassword = await bcrypt.hash(newPassword, 10);
+  }
+
+  const updateData = {
+    name,
+    username,
+    dateOfBirth,
+    website,
+    image,
+    bio,
+  };
+
+  if (isUserChangingPassword) {
+    updateData.password = hashedNewPassword;
+  }
+
+  const updatedUser = await userModel.findByIdAndUpdate(
+    req.user.userId,
+    updateData
+  );
+  res.redirect("/profile");
+});
+
+app.get("/profile/edit", verifyToken, async (req, res) => {
+  const user = await userModel.findById(req.user.userId);
+  if (!user) return res.status(404).send("User not found");
+  res.render("editProfile", { user, dayjs });
+});
+
+app.post("/profile/edit", verifyToken, async (req, res) => {
+  const { name, username, image, bio } = req.body;
+
+  const user = await userModel.findByIdAndUpdate(req.user.userId, {
+    name,
+    username,
+    image,
+    bio,
+  });
+
+  if (!user) return res.status(404).send("User not found");
+
+  res.redirect("/profile");
 });
 
 app.listen(port, () => {

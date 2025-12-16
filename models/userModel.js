@@ -7,6 +7,12 @@ const userSchema = mongoose.Schema({
   email: String,
   password: String,
   dateOfBirth: Date,
+  website: String,
+  bio: {
+    type: String,
+    maxLength: 120,
+    default: "This user prefers to keep an air of mystery about them.",
+  },
   image: {
     type: String,
     default:
@@ -18,6 +24,7 @@ const userSchema = mongoose.Schema({
       ref: "Post",
     },
   ],
-});
+}, 
+{ timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

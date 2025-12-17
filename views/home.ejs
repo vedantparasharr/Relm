@@ -37,7 +37,7 @@
         <% if (user) { %>
           <div class="bg-zinc-800/60 p-4 rounded-xl">
             <form action="/posts" method="POST" class="flex gap-3 items-start">
-              <img src="<%= user.image || '/images/default-avatar.png' %>" alt="avatar" class="w-10 h-10 rounded-full object-cover bg-zinc-700" />
+              <img src="/images/uploads/<%= user.image || 'default-avatar.png' %>" alt="avatar" class="w-10 h-10 rounded-full object-cover bg-zinc-700" />
               <div class="flex-1">
                 <input name="title" placeholder="Write a title" class="w-full px-3 py-2 rounded-lg bg-zinc-900/40 border border-zinc-700 placeholder-zinc-400" />
                 <textarea name="content" rows="3" placeholder="Share something with the community" class="w-full mt-2 px-3 py-2 rounded-lg bg-zinc-900/40 border border-zinc-700 placeholder-zinc-400 resize-none"></textarea>
@@ -62,7 +62,7 @@
             %>
               <article class="p-5 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 transition">
                 <div class="flex items-start gap-4">
-                  <img src="<%= (post.author && post.author.image) ? post.author.image : '/images/default-avatar.png' %>" alt="author" class="w-12 h-12 rounded-full object-cover bg-zinc-700" />
+                  <img src="images/uploads/<%= (post.author && post.author.image) ? post.author.image : 'default-avatar.png' %>" alt="author" class="w-12 h-12 rounded-full object-cover bg-zinc-700" />
 
                   <div class="flex-1">
                     <div class="flex items-start justify-between">
@@ -120,7 +120,7 @@
             <!-- Profile card -->
             <div class="bg-zinc-800/60 p-4 rounded-xl text-sm">
               <div class="flex items-center gap-3">
-                <img src="<%= user.image || '/images/default-avatar.png' %>" alt="you" class="w-14 h-14 rounded-full object-cover bg-zinc-700" />
+                <img src="images/uploads/<%= user.image || 'default-avatar.png' %>" alt="you" class="w-14 h-14 rounded-full object-cover bg-zinc-700" />
                 <div>
                   <div class="text-sm font-medium text-zinc-100"><%= user.name || user.username %></div>
                   <div class="text-xs text-zinc-400">@<%= user.username %></div>

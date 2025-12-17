@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 
 const userModel = require("./models/userModel");
 const postModel = require("./models/postModel");
+const upload = require("./configs/multer");
 
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -58,9 +59,8 @@ app.get("/", (req, res) => {
 // ======================
 // Authentication Routes
 // ======================
-app.post("/createUser", async (req, res) => {
+app.post("/createUser", upload.single("image"), async (req, res) => {
   const { username, name, email, password, dateOfBirth } = req.body;
-
   let isUser = await userModel.findOne({ email: email });
   if (isUser) return res.status(400).send("User already exists");
 
@@ -71,6 +71,7 @@ app.post("/createUser", async (req, res) => {
     email,
     password: hashedPassword,
     dateOfBirth,
+    image : req.file? req.file.filename : undefined
   });
 
   const token = jwt.sign({ email: email, userId: newUser._id }, "mysecretkey");

@@ -83,7 +83,7 @@
               <div class="w-20 h-20 rounded-lg overflow-hidden bg-zinc-700">
                 <img
                   id="previewImage"
-                  src="<%= user.image || '/images/default-avatar.png' %>"
+                  src="<%= user.image || 'default-avatar.png' %>"
                   alt="preview"
                   class="w-full h-full object-cover"
                 />
@@ -126,7 +126,7 @@
         imageInput.addEventListener('input', function () {
           const url = imageInput.value.trim();
           if (url) preview.src = url;
-          else preview.src = '/images/default-avatar.png';
+          else preview.src = 'default-avatar.png';
         });
       })();
     </script>

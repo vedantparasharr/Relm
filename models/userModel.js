@@ -16,7 +16,7 @@ const userSchema = mongoose.Schema(
     },
     image: {
       type: String,
-      default: "default-avatar.png",
+      default: "https://raw.githubusercontent.com/vedantparasharr/Relm/refs/heads/main/public/images/uploads/default-avatar.png",
     },
     posts: [
       {

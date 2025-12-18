@@ -9,7 +9,7 @@ const path = require("path");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
+const uploadToSupabase = require("./utils/uploadToSupabase");
 
 const userModel = require("./models/userModel");
 const postModel = require("./models/postModel");
@@ -69,16 +69,21 @@ app.post("/createUser", upload.single("image"), async (req, res) => {
   if (isUser) return res.status(400).send("User already exists");
 
   const hashedPassword = await bcrypt.hash(password, 10);
+  const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
+
   const newUser = await userModel.create({
     username,
     name,
     email,
     password: hashedPassword,
     dateOfBirth,
-    image: req.file ? req.file.filename : undefined,
+    image: imageUrl,
   });
 
-  const token = jwt.sign({ email: email, userId: newUser._id }, process.env.JWT_SECRET);
+  const token = jwt.sign(
+    { email: email, userId: newUser._id },
+    process.env.JWT_SECRET
+  );
   res.cookie("token", token, { httpOnly: true });
 
   res.redirect("/profile");
@@ -113,11 +118,18 @@ app.post("/auth/signin", async (req, res) => {
 
   let token;
   if (remember) {
-    token = jwt.sign({ email: email, userId: user._id }, process.env.JWT_SECRET);
+    token = jwt.sign(
+      { email: email, userId: user._id },
+      process.env.JWT_SECRET
+    );
   } else {
-    token = jwt.sign({ email: email, userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    token = jwt.sign(
+      { email: email, userId: user._id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
   }
 
   res.cookie("token", token, { httpOnly: true });

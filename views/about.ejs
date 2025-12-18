@@ -12,23 +12,25 @@
       <a href="/home" class="text-2xl font-semibold tracking-tight inline-block mb-4">
         <span class="text-blue-400">R</span>elm
       </a>
-      <header class="flex items-start justify-between gap-6 mb-8">
-        <div class="flex items-center gap-4">
+      <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
+        <div class="flex items-start sm:items-center gap-4">
           <img
             src="/images/uploads/<%= user.image || 'default-avatar.png' %>"
             alt="avatar"
-            class="w-16 h-16 rounded-full bg-zinc-700 object-cover"
-          /> 
-          <div>
-            <h1 class="text-2xl font-semibold tracking-tight">
+            class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-zinc-700 object-cover"
+          />
+          <div class="min-w-0"> 
+            <h1 class="text-lg sm:text-2xl font-semibold tracking-tight truncate">
               <%= user.name || user.username %>
             </h1>
             <p class="text-sm text-zinc-400">@<%= user.username %></p>
-            <p class="text-sm text-zinc-400 mt-1"><%= user.bio %></p>
+            <p class="text-sm text-zinc-400 mt-1 max-w-xs sm:max-w-none break-words">
+              <%= user.bio || '' %>
+            </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 mt-4 sm:mt-0">
           <a
             href="/posts/new"
             class="px-4 py-2 rounded-lg text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95"

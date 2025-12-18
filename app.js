@@ -49,7 +49,11 @@ const verifyToken = (req, res, next) => {
     req.user = verified;
     next();
   } catch (err) {
-    return res.status(400).send("Invalid Token");
+    res.clearCookie("token");
+    return res.status(401).render("authRequired", {
+      title: "Sign in required!",
+      message: "Please Sign in or continue as guest",
+    });
   }
 };
 
@@ -191,19 +195,12 @@ app.post(
     const { name, username, bio } = req.body;
     const user = await userModel.findById(req.user.userId);
     if (!user) return res.status(404).send("User not found");
-    if (req.file && user.image && user.image !== "default-avatar.png") {
-      fs.rm(
-        path.join(__dirname, "public", "images", "uploads", user.image),
-        (err) => {
-          if (err) console.log(err);
-        }
-      );
-    }
+    const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
 
     user.name = name?.trim();
     user.username = username?.trim();
     user.bio = bio?.trim();
-    if (req.file) user.image = req.file.filename;
+    if (req.file) user.image = imageUrl;
     await user.save();
 
     res.redirect("/profile");
@@ -257,14 +254,7 @@ app.post(
       user.password = await bcrypt.hash(newPassword, 10);
     }
 
-    if (req.file && user.image && user.image !== "default-avatar.png") {
-      fs.rm(
-        path.join(__dirname, "public", "images", "uploads", user.image),
-        (err) => {
-          if (err) console.log(err);
-        }
-      );
-    }
+    const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
 
     user.name = name;
     user.username = username;
@@ -272,7 +262,7 @@ app.post(
     user.website = website;
     user.bio = bio;
     if (req.file) {
-      user.image = req.file.filename;
+      user.image = imageUrl;
     }
     await user.save();
     res.redirect("/profile");

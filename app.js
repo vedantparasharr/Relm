@@ -69,9 +69,9 @@ app.get("/", (req, res) => {
 // ======================
 app.post("/createUser", upload.single("image"), async (req, res) => {
   const { username, name, email, password, dateOfBirth } = req.body;
-  const lowerUsername = username.toLowerCase();
+  const normalizedUsername = username.trim().toLowerCase();
   let isUser = await userModel.findOne({
-    $or: [{ email }, { username: lowerUsername }],
+    $or: [{ email }, { username: normalizedUsername }],
   });
   if (isUser) return res.status(400).send("User already exists");
 
@@ -79,7 +79,7 @@ app.post("/createUser", upload.single("image"), async (req, res) => {
   const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
 
   const newUser = await userModel.create({
-    username: lowerUsername,
+    username: username.trim().toLowerCase(),
     name,
     email,
     password: hashedPassword,
@@ -197,11 +197,20 @@ app.post(
   async (req, res) => {
     const { name, username, bio } = req.body;
     const user = await userModel.findById(req.user.userId);
+    const existingUser = await userModel.findOne({
+      username: username.trim().toLowerCase(),
+      _id: { $ne: req.user.userId },
+    });
+
+    if (existingUser) {
+      return res.status(400).send("Username already taken");
+    }
+
     if (!user) return res.status(404).send("User not found");
     const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
 
     user.name = name?.trim();
-    user.username = username?.trim();
+    user.username = username.trim().toLowerCase();
     user.bio = bio?.trim();
     if (req.file) user.image = imageUrl;
     await user.save();
@@ -260,7 +269,7 @@ app.post(
     const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
 
     user.name = name;
-    user.username = username;
+    user.username = username.trim().toLowerCase();
     user.dateOfBirth = dateOfBirth;
     user.website = website;
     user.bio = bio;
@@ -385,8 +394,8 @@ app.get("/home", verifyToken, async (req, res) => {
 });
 
 app.use((req, res) => {
-  res.status(404).render('error')
-})
+  res.status(404).render("error");
+});
 
 // ======================
 // Server Start

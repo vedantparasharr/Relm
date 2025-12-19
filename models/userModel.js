@@ -3,7 +3,13 @@ mongoose.connect(process.env.MONGO_URI);
 
 const userSchema = mongoose.Schema(
   {
-    username: String,
+    username: {
+      type: String,
+      lowercase: true,
+      required: true,
+      unique: true,
+      trim: true
+    },
     name: String,
     email: String,
     password: String,

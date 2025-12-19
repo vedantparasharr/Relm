@@ -1,130 +1,170 @@
-# Relm 🌀
+# Relm - Simple Community App ✨🚀🌐
 
-A minimal backend-powered social blogging app built with Node.js, Express, MongoDB and EJS templates. Built as a learning project to practice authentication, data association (users/posts/likes), image uploads, and simple UX patterns.
-
----
-
-## Features ✨
-
-- JWT auth stored in HTTP-only cookies (user and guest flows)
-- Register / Sign in / Sign out
-- Profile pages with edit, about and settings
-- Create, edit, delete posts
-- Like system with optimistic UI updates
-- Image uploads for avatars (Multer + local filesystem)
-- Simple, responsive UI using Tailwind via CDN
+A small, opinionated social/community app built with **Node.js**, **Express**, **MongoDB** and **Supabase** (for avatar uploads). It’s intentionally simple - focused on user accounts, basic posts, likes, and profile management. 🌱🧩💡
 
 ---
 
-## Tech stack 🧰
+## Highlights ⭐📌🎯
+
+- Email/password authentication with JWT stored in an HTTP-only cookie
+- Guest sign-in (temporary token)
+- Create / edit / delete posts
+- Like/unlike posts (AJAX-friendly endpoint)
+- Profile editing with avatar upload to Supabase storage
+- Simple EJS views and server-side rendering
+
+---
+
+## Tech stack 🛠️⚙️📦
 
 - Node.js + Express
-- MongoDB / Mongoose
-- EJS view templates
-- Tailwind CSS (via CDN)
-- Multer for file uploads
+- MongoDB (Mongoose)
+- Supabase Storage (for avatar uploads)
+- EJS templates
+- Multer for multipart/form-data uploads
 - bcrypt for password hashing
-- jsonwebtoken for authentication
+- jsonwebtoken for auth tokens
+- sharp for image resizing
 
 ---
 
-## Getting started ⚙️
+## Prerequisites 📋✅🔧
 
-### Prerequisites
+- Node.js (v16+ recommended)
+- A running MongoDB instance (URI)
+- A Supabase project with a storage bucket (see below)
 
-- Node.js (v16 or newer recommended)
-- MongoDB (local or Atlas)
+---
 
-### Install
+## Quick start 🚀🧭⚡
+
+1. Clone the repo and install dependencies:
 
 ```bash
 git clone <repo-url>
-cd relm
+cd <repo-folder>
 npm install
 ```
 
-### Environment variables
+2. Create a `.env` file in the project root with the following values:
 
-Create a `.env` file in the project root with at least:
-
-```
+```env
+MONGO_URI=your_mongo_uri
+JWT_SECRET=some_long_secret
+SUPABASE_URL=https://your-supabase-url
+SUPABASE_ANON_KEY=your_supabase_anon_key
 PORT=3000
-MONGO_URI=mongodb://localhost:27017/relm
-JWT_SECRET=your_secret_here
 ```
 
-If you use MongoDB Atlas, use the provided connection string from Atlas.
-
-### Run
+3. Start the app:
 
 ```bash
-# start
-node app.js
-# or with nodemon
-npx nodemon app.js
+# production
+node index.js
+
+# development (if you use nodemon)
+npx nodemon index.js
 ```
 
-Open `http://localhost:3000` and create an account or try the guest flow.
+The server will listen on `http://localhost:3000` (or the value of `PORT`). 🌍🔊🕒
 
 ---
 
-## File structure (key files) 📁
+## Important environment details 🔐🧠📎
 
-- `app.js` - main Express server and routes
-- `views/` - EJS templates for pages (index, signin, home, profile, about, settings, create/edit post, post detail)
-- `public/images/uploads` - uploaded avatars
-- `models/` - mongoose models (User, Post)
-- `configs/multer.js` - multer configuration
+- `JWT_SECRET` - used to sign tokens. Keep it secret.
+- `SUPABASE_URL` and `SUPABASE_ANON_KEY` - used to upload avatars to Supabase storage.
+- The code expects a Supabase storage bucket named exactly: `avatars relm` (make sure that bucket exists and is publicly readable if you want direct public URLs).
 
 ---
 
-## Notes & gotchas ⚠️
+## Routes overview (main ones) 🧭🛣️📡
 
-- Uploaded avatars are stored on the local filesystem. Old images are removed when replaced. For production, use S3 or Cloudflare R2 for storage.
-- Guest accounts use a short-lived token and intentionally do not include a `userId`. Guests cannot access `/profile`.
-- Password changes happen in `/profile/settings` and are validated server-side.
-- `editPost.ejs` had an extra quote in the textarea which could affect rendering. Check templates before deploying.
+- `GET /` - Landing page
+- `POST /createUser` - Create account (multipart form; accepts `image` file)
+- `GET /createguest` - Create a temporary guest token (expires in 1 hour)
+- `GET /auth/signin` & `POST /auth/signin` - Sign-in form and handler
+- `GET /auth/signout` - Clear cookie and sign out
+- `GET /profile` - Protected route (view your profile)
+- `POST /profile/edit` - Edit profile (multipart; `image` optional)
+- `GET /posts/new` - New post form
+- `POST /posts` - Create a post
+- `GET /posts/:id` - View a post
+- `POST /posts/:id/like` - Toggle like (returns JSON `{ liked, likesCount }`)
 
----
-
-## Security recommendations 🔒
-
-- Use HTTPS in production and set `secure: true` on cookies.
-- Set `SameSite` on cookies based on your deployment needs.
-- Move secrets to a secrets manager and rotate `JWT_SECRET` periodically.
-- Rate-limit auth endpoints to reduce brute force risk.
-
----
-
-## Deployment tips 🚀
-
-- Replace local file storage with object storage (S3, Cloudflare R2) for images.
-- Use a process manager (PM2) or containerize the app with Docker and set environment variables securely.
-- In production, set `NODE_ENV=production` and configure structured logging.
+**Note:** Most protected routes require the JWT cookie (`token`). ⚠️🍪🔑
 
 ---
 
-## Known issues (tracked) 📝
+## File structure (relevant files) 🗂️📁🧱
 
-- Header markup is duplicated across EJS templates. Consider extracting header and footer into partials.
-- Some templates assume `user` always exists; add guards where guest flow is allowed.
-- `editPost.ejs` contains an extra stray quote in the textarea; remove it to avoid rendering errors.
+```
+/ (root)
+├─ index.js                # main server file (express app)
+├─ configs/
+│  ├─ supabase.js          # supabase client
+│  └─ multer.js            # multer config
+├─ models/
+│  ├─ userModel.js
+│  └─ postModel.js
+├─ utils/
+│  ├─ uploadToSupabase.js  # upload helper
+│  └─ compressAvatar.js    # sharp image resizing
+├─ public/                 # static assets
+├─ views/                  # EJS templates
+└─ package.json
+```
 
 ---
 
-## Contributing 🤝
+## Supabase setup ☁️🗄️🔗
 
-Pull requests are welcome. For bigger changes, open an issue first to discuss the plan.
+1. Create a Supabase project at [https://supabase.com](https://supabase.com).
+2. Create a storage bucket named `avatars relm`.
+3. Ensure uploaded files are readable (public) or adapt `getPublicUrl` usage to your security needs.
+4. Copy the project URL and anon key into `.env`.
 
 ---
 
-## License 📜
+## Notes & tips 📝💡🧠
+
+- The app stores JWT tokens in an HTTP-only cookie named `token`.
+- Guest accounts are created via `/createguest` and use a token containing `data: randomId` (no persisted user document). Guests cannot access `/profile`.
+- Password changes are handled in `/profile/settings` - the server checks the current password before updating.
+- Image uploads are compressed to 256×256 and saved as JPEG via `sharp` before uploading to Supabase.
+
+---
+
+## Example `curl` (create user) 🧪📮🖥️
+
+```bash
+curl -X POST \
+  -F "username=alice" \
+  -F "name=Alice" \
+  -F "email=alice@example.com" \
+  -F "password=supersecret" \
+  -F "image=@/path/to/avatar.jpg" \
+  http://localhost:3000/createUser
+```
+
+**Sign in** (form-based; you can POST `email` and `password` to `/auth/signin`). 🔐➡️👤
+
+---
+
+## Contributing 🤝🌱🛠️
+
+This project is intentionally small - PRs are welcome for bug fixes, small features, and documentation improvements. 🙌📖✨
+
+---
+
+## License 📄⚖️✔️
 
 MIT
 
-<br/>
+---
 
-<div align="center">
-Made with patience, ❤️ and curiosity by <strong>Vedant Parashar</strong>
-</div>
+## Author 👤💼✨
+
+Built with ❤️ by **Vedant Parasharr** ✨🚀  
+Connect on LinkedIn: https://www.linkedin.com/in/vedantparasharr
 

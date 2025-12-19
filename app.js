@@ -69,14 +69,17 @@ app.get("/", (req, res) => {
 // ======================
 app.post("/createUser", upload.single("image"), async (req, res) => {
   const { username, name, email, password, dateOfBirth } = req.body;
-  let isUser = await userModel.findOne({ email: email });
+  const lowerUsername = username.toLowerCase();
+  let isUser = await userModel.findOne({
+    $or: [{ email }, { username: lowerUsername }],
+  });
   if (isUser) return res.status(400).send("User already exists");
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
 
   const newUser = await userModel.create({
-    username,
+    username: lowerUsername,
     name,
     email,
     password: hashedPassword,
@@ -380,6 +383,10 @@ app.get("/home", verifyToken, async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
+
+app.use((req, res) => {
+  res.status(404).render('error')
+})
 
 // ======================
 // Server Start

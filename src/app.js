@@ -13,7 +13,7 @@ const uploadToSupabase = require("./utils/uploadToSupabase");
 
 const userModel = require("./models/userModel");
 const postModel = require("./models/postModel");
-const upload = require("./configs/multer");
+const upload = require("./config/multer");
 
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -23,13 +23,13 @@ const { randomUUID } = require("crypto");
 // App Initialization
 // ======================
 const app = express();
-const port = process.env.PORT || 3000;
 
 // ======================
 // App Configuration
 // ======================
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "public")));
+app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
@@ -333,9 +333,9 @@ app.get("/posts/:id/edit", verifyToken, async (req, res) => {
 app.post("/posts/:id/edit", verifyToken, async (req, res) => {
   const { title, content } = req.body;
   const post = await postModel.findById(req.params.id);
-  if(!post) return res.status(404).send('Post not found');
-  if(post.author.toString() !== req.user.userId) {
-    return res.status(403).send("Unauthorized")
+  if (!post) return res.status(404).send("Post not found");
+  if (post.author.toString() !== req.user.userId) {
+    return res.status(403).send("Unauthorized");
   }
   await postModel.findByIdAndUpdate(req.params.id, {
     title: title.trim(),
@@ -401,9 +401,4 @@ app.use((req, res) => {
   res.status(404).render("error");
 });
 
-// ======================
-// Server Start
-// ======================
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+module.exports = app;

@@ -1,4 +1,4 @@
-const supabase = require("../configs/supabase");
+const supabase = require("../config/supabase");
 const compressAvatar = require("./compressAvatar");
 const { randomUUID } = require("crypto");
 

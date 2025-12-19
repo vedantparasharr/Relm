@@ -332,7 +332,11 @@ app.get("/posts/:id/edit", verifyToken, async (req, res) => {
 
 app.post("/posts/:id/edit", verifyToken, async (req, res) => {
   const { title, content } = req.body;
-
+  const post = await postModel.findById(req.params.id);
+  if(!post) return res.status(404).send('Post not found');
+  if(post.author.toString() !== req.user.userId) {
+    return res.status(403).send("Unauthorized")
+  }
   await postModel.findByIdAndUpdate(req.params.id, {
     title: title.trim(),
     content: content.trim(),

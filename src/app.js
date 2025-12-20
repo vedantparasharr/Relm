@@ -18,7 +18,6 @@ const uploadToSupabase = require("./utils/uploadToSupabase");
 
 const userModel = require("./models/userModel");
 const postModel = require("./models/postModel");
-const { stringify } = require("querystring");
 
 // ======================
 // App Initialization
@@ -93,9 +92,15 @@ app.post("/createUser", upload.single("image"), async (req, res) => {
 
   const token = jwt.sign(
     { email: email, userId: newUser._id },
-    process.env.JWT_SECRET
+    process.env.JWT_SECRET,
+    { expiresIn: "30d" }
   );
-  res.cookie("token", token, { httpOnly: true });
+  res.cookie("token", token, {
+    httpOnly: true,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
 
   res.redirect("/profile");
 });
@@ -109,7 +114,12 @@ app.get("/createguest", async (req, res) => {
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
-  res.cookie("token", token, { httpOnly: true });
+  res.cookie("token", token, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 1000,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
   res.redirect("/home");
 });
 
@@ -131,19 +141,32 @@ app.post("/auth/signin", async (req, res) => {
   if (remember) {
     token = jwt.sign(
       { email: email, userId: user._id },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "30d",
+      }
     );
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
   } else {
     token = jwt.sign(
       { email: email, userId: user._id },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: "1d",
       }
     );
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
   }
-
-  res.cookie("token", token, { httpOnly: true });
   res.redirect("/profile");
 });
 
@@ -302,7 +325,7 @@ app.post("/posts", verifyToken, async (req, res) => {
       title: title.trim(),
       content: content.trim(),
     });
-    const updatePostInUser = await userModel.findByIdAndUpdate(user._id, {
+    await userModel.findByIdAndUpdate(user._id, {
       $push: { posts: newPost._id },
     });
 
@@ -336,7 +359,7 @@ app.post("/posts/:id/comments", verifyToken, async (req, res) => {
 });
 
 app.get(
-  "/posts/:postId/:comments/:commentId/delete",
+  "/posts/:postId/comments/:commentId/delete",
   verifyToken,
   async (req, res) => {
     try {
@@ -351,7 +374,7 @@ app.get(
       await post.save();
       res.redirect(`/posts/${postId}`);
     } catch (error) {
-      console.error(err);
+      console.error(error);
       res.status(500).send("Server error");
     }
   }

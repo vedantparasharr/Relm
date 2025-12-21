@@ -94,7 +94,7 @@ app.post("/createUser", upload.single("image"), async (req, res) => {
   });
 
   if (!user.verified) {
-    await sendOTPEmail(user);
+    sendOTPEmail(user).catch(console.error);
     return res.render("verify", { user: user._id });
   }
 });
@@ -166,7 +166,7 @@ app.post("/auth/signin", async (req, res) => {
     return res.status(400).send("Invalid email or password");
 
   if (!user.verified) {
-    await sendOTPEmail(user);
+    sendOTPEmail(user).catch(console.error);
     return res.render("verify", { user: user._id });
   }
 

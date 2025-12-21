@@ -11,6 +11,9 @@ let transporter = nodemailer.createTransport({
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_PASS,
   },
+  connectionTimeout: 5000,
+  greetingTimeout: 5000,
+  socketTimeout: 5000,
 });
 
 const sendOTPEmail = async (user) => {
@@ -105,4 +108,4 @@ const sendOTPEmail = async (user) => {
   }
 };
 
-module.exports = sendOTPEmail
+module.exports = sendOTPEmail;

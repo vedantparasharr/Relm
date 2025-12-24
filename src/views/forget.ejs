@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forgot Password • Relm</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+
+  <body class="min-h-screen bg-zinc-900 text-white flex items-center justify-center p-6">
+    <main class="w-full max-w-md tracking-tighter">
+      
+      <a href="/" class="text-2xl font-semibold tracking-tight inline-block mb-4">
+        <span class="text-blue-400">R</span>elm
+      </a>
+
+      <section class="bg-zinc-800/70 backdrop-blur-sm rounded-2xl shadow-lg p-8">
+        <h1 class="text-2xl font-semibold mb-3 text-center">
+          Forgot your password?
+        </h1>
+
+        <p class="text-sm text-zinc-300 mb-6 text-center">
+          Enter your email address and we’ll send you a verification code.
+        </p>
+
+        <form action="/auth/forget" method="POST" class="space-y-4">
+          <div>
+            <label for="email" class="block text-sm mb-1">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              class="w-full px-3 py-2 rounded-lg bg-zinc-900/40 border border-zinc-700 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full mt-2 py-2 rounded-lg font-medium text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95"
+          >
+            Send reset code
+          </button>
+        </form>
+
+        <p class="text-center text-xs text-zinc-400 mt-4">
+          Remember your password?
+          <a href="/auth/signin" class="text-blue-400 hover:underline">Sign in</a>
+        </p>
+      </section>
+
+      <footer class="text-center text-xs text-zinc-500 mt-4">
+        Secure password recovery
+      </footer>
+
+    </main>
+  </body>
+</html>

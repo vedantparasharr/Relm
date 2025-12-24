@@ -111,6 +111,7 @@ app.post("/createUser", upload.single("image"), async (req, res) => {
     password: hashedPassword,
     dateOfBirth,
     image: imageUrl,
+    otpPurpose: "verify_email",
   });
 
   if (!user.verified) {
@@ -125,32 +126,41 @@ app.post("/verify-email", async (req, res) => {
   const user = await userModel.findById(userId);
   if (!user) return res.status(404).send("User not found");
 
-  if (!user.expireOTP || user.expireOTP < Date.now()) {
+  if (!user.otpExpires || user.otpExpires < Date.now()) {
     return res.status(400).send("OTP Expired");
   }
 
-  const isValid = await bcrypt.compare(code, user.hashOTP);
+  const isValid = await bcrypt.compare(code, user.otpHash);
   if (!isValid) return res.status(400).send("Invalid OTP");
+  user.otpHash = undefined;
+  user.otpExpires = undefined;
 
-  user.verified = true;
-  user.hashOTP = undefined;
-  user.expireOTP = undefined;
-  await user.save();
+  if (user.otpPurpose === "verify_email") {
+    user.verified = true;
+    user.otpPurpose = undefined;
+    await user.save();
 
-  const token = jwt.sign(
-    { email: user.email, userId: user._id },
-    process.env.JWT_SECRET,
-    { expiresIn: "30d" }
-  );
+    const token = jwt.sign(
+      { email: user.email, userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  });
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+    res.redirect("/home");
+  }
 
-  res.redirect("/home");
+  if (user.otpPurpose === "reset_password") {
+    user.otpPurpose = undefined;
+    await user.save();
+    return res.redirect(`/auth/reset-password/${user._id}`);
+  }
+  res.status(400).send("Invalid OTP request");
 });
 
 app.get("/createguest", async (req, res) => {
@@ -220,6 +230,39 @@ app.post("/auth/signin", async (req, res) => {
       sameSite: "lax",
     });
   }
+  res.redirect("/profile");
+});
+
+app.get("/auth/forget", async (req, res) => {
+  res.render("forget");
+});
+
+app.post("/auth/forget", async (req, res) => {
+  const { email } = req.body;
+  const user = await userModel.findOne({ email });
+  if (!user) res.status(400).send("No account found with this email");
+  sendOTPEmail(user).catch(console.error);
+  user.otpPurpose = "reset_password";
+  await user.save();
+  res.render("verify", { user: user._id });
+});
+
+app.get("/auth/reset-password/:user", async (req, res) => {
+  const user = await userModel.findById(req.params.user);
+  if (!user) return "User does not exist.";
+
+  res.render("reset", { user });
+});
+
+app.post("/auth/reset-password/:user", async (req, res) => {
+  const user = await userModel.findById(req.params.user);
+  const { password, confirmPassword } = req.body;
+  if (!user) return "User does not exist.";
+  if (password !== confirmPassword)
+    return res.status(400).send("Passwords does not match");
+
+  const hashedPassword = bcrypt.hash(password, 10);
+  user.password = hashedPassword;
   res.redirect("/profile");
 });
 

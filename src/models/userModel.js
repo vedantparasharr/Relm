@@ -32,9 +32,13 @@ const userSchema = mongoose.Schema(
         ref: "Post",
       },
     ],
-    hashOTP: String,
-    expireOTP: {
+    otpHash: String,
+    otpExpires: {
       type: Date,
+    },
+    otpPurpose: {
+      type: String,
+      enum: ["verify_email", "reset_password"],
     },
     verified: {
       type: Boolean,

@@ -18,11 +18,11 @@ apiInstance.setApiKey(
 const sendOTPEmail = async (user) => {
   // 1️⃣ Generate OTP
   const plainOTP = crypto.randomInt(100000, 1000000).toString();
-  const hashOTP = await bcrypt.hash(plainOTP, 10);
+  const otpHash = await bcrypt.hash(plainOTP, 10);
 
   // 2️⃣ Save OTP to DB
-  user.hashOTP = hashOTP;
-  user.expireOTP = Date.now() + 10 * 60 * 1000;
+  user.otpHash = otpHash;
+  user.otpExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
 
   // 3️⃣ Email HTML (same design)
@@ -135,10 +135,10 @@ module.exports = sendOTPEmail;
 
 // const sendOTPEmail = async (user) => {
 //   const plainOTP = crypto.randomInt(100000, 1000000).toString();
-//   const hashOTP = await bcrypt.hash(plainOTP, 10);
+//   const otpHash = await bcrypt.hash(plainOTP, 10);
 
-//   user.hashOTP = hashOTP;
-//   user.expireOTP = Date.now() + 10 * 60 * 1000;
+//   user.otpHash = otpHash;
+//   user.otpExpires = Date.now() + 10 * 60 * 1000;
 //   await user.save();
 
 //   const html = `

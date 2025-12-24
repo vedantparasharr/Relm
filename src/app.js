@@ -240,7 +240,9 @@ app.get("/auth/forget", async (req, res) => {
 app.post("/auth/forget", async (req, res) => {
   const { email } = req.body;
   const user = await userModel.findOne({ email });
-  if (!user) res.status(400).send("No account found with this email");
+  if (!user) {
+    return res.status(400).send("No account found with this email");
+  }
   sendOTPEmail(user).catch(console.error);
   user.otpPurpose = "reset_password";
   await user.save();
@@ -249,7 +251,7 @@ app.post("/auth/forget", async (req, res) => {
 
 app.get("/auth/reset-password/:user", async (req, res) => {
   const user = await userModel.findById(req.params.user);
-  if (!user) return "User does not exist.";
+  if (!user) return res.status(404).send("User does not exist");
 
   res.render("reset", { user });
 });
@@ -257,13 +259,18 @@ app.get("/auth/reset-password/:user", async (req, res) => {
 app.post("/auth/reset-password/:user", async (req, res) => {
   const user = await userModel.findById(req.params.user);
   const { password, confirmPassword } = req.body;
-  if (!user) return "User does not exist.";
+
+  if (!user) return res.status(400).send("User does not exist.");
   if (password !== confirmPassword)
     return res.status(400).send("Passwords does not match");
 
-  const hashedPassword = bcrypt.hash(password, 10);
-  user.password = hashedPassword;
-  res.redirect("/profile");
+  user.password = await bcrypt.hash(password, 10);
+  user.otpPurpose = undefined;
+  user.otpHash = undefined;
+  user.otpExpires = undefined;
+  await user.save();
+
+  return res.redirect("/auth/signin");
 });
 
 app.get("/auth/signout", (req, res) => {

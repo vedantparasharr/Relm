@@ -92,9 +92,6 @@ app.get("/", (req, res) => {
 // Authentication Routes
 // ======================
 
-// app.get("/auth/createUser", (req, res) => {
-//   res.render("index");
-// });
 
 app.post("/createUser", upload.single("image"), async (req, res) => {
   const { username, name, email, password, dateOfBirth } = req.body;
@@ -183,10 +180,6 @@ app.get("/createguest", async (req, res) => {
   res.redirect("/home");
 });
 
-app.get("/auth/signin", (req, res) => {
-  res.render("signin");
-});
-
 app.post("/auth/signin", async (req, res) => {
   const { email, password, remember } = req.body;
 
@@ -235,10 +228,6 @@ app.post("/auth/signin", async (req, res) => {
   res.redirect("/profile");
 });
 
-app.get("/auth/forget", async (req, res) => {
-  res.render("forget");
-});
-
 app.post("/auth/forget", async (req, res) => {
   const { email } = req.body;
   const user = await userModel.findOne({ email });
@@ -251,15 +240,6 @@ app.post("/auth/forget", async (req, res) => {
   user.otpExpires = undefined;
   await user.save();
   res.render("verify", { user: user._id });
-});
-
-app.get("/auth/reset-password/:user", async (req, res) => {
-  const user = await userModel.findById(req.params.user);
-  if (!user) return res.status(404).send("User does not exist");
-  if (user.otpPurpose !== "reset_password")
-    return res.status(403).send("Unauthorised");
-
-  res.render("reset", { user });
 });
 
 app.post("/auth/reset-password/:user", async (req, res) => {
@@ -277,11 +257,6 @@ app.post("/auth/reset-password/:user", async (req, res) => {
   await user.save();
 
   return res.redirect("/auth/signin");
-});
-
-app.get("/auth/signout", (req, res) => {
-  res.clearCookie("token");
-  res.redirect("/");
 });
 
 // ======================

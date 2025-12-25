@@ -1,3 +1,7 @@
+const userModel = require("../src/models/userModel");
+const bcrypt = require("bcrypt")
+const sendOTPEmail = require("./")
+
 const createUser = (req, res) => {
   res.render("index");
 };
@@ -24,4 +28,38 @@ const signout = (req, res) => {
   res.redirect("/");
 };
 
-module.exports = { createUser, signin, forget, resetPassword, signout };
+const createUserr = async (req, res) => {
+  const { username, name, email, password, dateOfBirth } = req.body;
+  const normalizedUsername = username.trim().toLowerCase();
+  let isUser = await userModel.findOne({
+    $or: [{ email }, { username: normalizedUsername }],
+  });
+  if (isUser) return res.status(400).send("User already exists");
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
+
+  const user = await userModel.create({
+    username: normalizedUsername,
+    name,
+    email,
+    password: hashedPassword,
+    dateOfBirth,
+    image: imageUrl,
+    otpPurpose: "verify_email",
+  });
+
+  if (!user.verified) {
+    sendOTPEmail(user).catch(console.error);
+    return res.render("verify", { user: user._id });
+  }
+};
+
+module.exports = {
+  createUser,
+  signin,
+  forget,
+  resetPassword,
+  signout,
+  createUserr,
+};

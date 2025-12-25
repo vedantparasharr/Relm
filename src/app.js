@@ -36,7 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-const authRoutes = require("./routes/auth.routes");
+const authRoutes = require("../routes/auth.routes");
 app.use("/auth", authRoutes);
 
 // ======================
@@ -91,34 +91,6 @@ app.get("/", (req, res) => {
 // ======================
 // Authentication Routes
 // ======================
-
-
-app.post("/createUser", upload.single("image"), async (req, res) => {
-  const { username, name, email, password, dateOfBirth } = req.body;
-  const normalizedUsername = username.trim().toLowerCase();
-  let isUser = await userModel.findOne({
-    $or: [{ email }, { username: normalizedUsername }],
-  });
-  if (isUser) return res.status(400).send("User already exists");
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
-
-  const user = await userModel.create({
-    username: normalizedUsername,
-    name,
-    email,
-    password: hashedPassword,
-    dateOfBirth,
-    image: imageUrl,
-    otpPurpose: "verify_email",
-  });
-
-  if (!user.verified) {
-    sendOTPEmail(user).catch(console.error);
-    return res.render("verify", { user: user._id });
-  }
-});
 
 app.post("/verify-email", async (req, res) => {
   const { userId, code } = req.body;

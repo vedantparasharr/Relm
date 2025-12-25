@@ -82,7 +82,7 @@ The server will listen on `http://localhost:3000` (or the value of `PORT`). 🌍
 
 - `GET /` - Landing page
 - `POST /createUser` - Create account (multipart form; accepts `image` file)
-- `GET /createguest` - Create a temporary guest token (expires in 1 hour)
+- `GET /auth/guest` - Create a temporary guest token (expires in 1 hour)
 - `GET /auth/signin` & `POST /auth/signin` - Sign-in form and handler
 - `GET /auth/signout` - Clear cookie and sign out
 - `GET /profile` - Protected route (view your profile)
@@ -129,7 +129,7 @@ The server will listen on `http://localhost:3000` (or the value of `PORT`). 🌍
 ## Notes & tips 📝💡🧠
 
 - The app stores JWT tokens in an HTTP-only cookie named `token`.
-- Guest accounts are created via `/createguest` and use a token containing `data: randomId` (no persisted user document). Guests cannot access `/profile`.
+- Guest accounts are created via `/auth/guest` and use a token containing `data: randomId` (no persisted user document). Guests cannot access `/profile`.
 - Password changes are handled in `/profile/settings` - the server checks the current password before updating.
 - Image uploads are compressed to 256×256 and saved as JPEG via `sharp` before uploading to Supabase.
 

@@ -37,33 +37,15 @@ app.use(express.json());
 app.use(cookieParser());
 
 const authRoutes = require("../routes/auth.routes");
+const profileRoutes = require("../routes/profile.routes");
 app.use("/auth", authRoutes);
+app.use("/profile", profileRoutes);
 
 // ======================
 // Authentication Middleware
 // ======================
 
-const verifyToken = (req, res, next) => {
-  const token = req.cookies.token;
 
-  if (!token) {
-    return res.status(401).render("authRequired", {
-      title: "Sign in required!",
-      message: "Please Sign in or continue as guest",
-    });
-  }
-
-  try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
-    return next();
-  } catch (err) {
-    res.clearCookie("token");
-    return res.status(401).render("authRequired", {
-      title: "Sign in required!",
-      message: "Please Sign in or continue as guest",
-    });
-  }
-};
 
 const checkAuth = (req) => {
   const token = req.cookies.token;
@@ -89,52 +71,8 @@ app.get("/", (req, res) => {
 });
 
 // ======================
-// Authentication Routes
-// ======================
-
-
-
-// ======================
 // Profile Routes
 // ======================
-app.get("/profile", verifyToken, async (req, res) => {
-  if (!req.user.userId) {
-    return res.render("authRequired", {
-      title: "Profile Unavailable",
-      message: "Guest accounts do not have profiles. Sign in to continue.",
-    });
-  }
-
-  const user = await userModel.findById(req.user.userId);
-  if (!user) {
-    return res.redirect("/auth/signin");
-  }
-
-  const posts = await postModel
-    .find({ author: user._id })
-    .populate("author")
-    .populate("likes");
-
-  res.render("profile", { user, posts, dayjs });
-});
-
-app.get("/profile/about", verifyToken, async (req, res) => {
-  const user = await userModel.findById(req.user.userId);
-  const posts = await postModel
-    .find({ author: user._id })
-    .populate("author")
-    .populate("likes");
-
-  if (!user) return res.status(404).send("User not found");
-  res.render("about", { user, posts, dayjs });
-});
-
-app.get("/profile/edit", verifyToken, async (req, res) => {
-  const user = await userModel.findById(req.user.userId);
-  if (!user) return res.status(404).send("User not found");
-
-  res.render("editProfile", { user, dayjs });
-});
 
 app.post(
   "/profile/edit",
@@ -168,12 +106,6 @@ app.post(
 // ======================
 // Profile Settings Routes
 // ======================
-app.get("/profile/settings", verifyToken, async (req, res) => {
-  const user = await userModel.findById(req.user.userId);
-  if (!user) return res.status(404).send("User not found");
-
-  res.render("settings", { user, dayjs });
-});
 
 app.post(
   "/profile/settings",

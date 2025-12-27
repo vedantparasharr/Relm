@@ -7,9 +7,9 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
-const uploadToSupabase = require("./utils/uploadToSupabase");
-const userModel = require("./models/userModel");
-const postModel = require("./models/postModel");
+const uploadToSupabase = require("../src/utils/uploadToSupabase");
+const userModel = require("../src/models/userModel");
+const postModel = require("../src/models/postModel");
 
 const renderProfile = async (req, res) => {
   if (!req.user.userId) {

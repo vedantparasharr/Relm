@@ -45,6 +45,8 @@ const checkAuth = (req) => {
   }
 };
 
+const verifyToken = require("./utils/verifyToken");
+
 // ======================
 // Public Routes
 // ======================
@@ -57,7 +59,6 @@ app.get("/", (req, res) => {
     message: "Sign in, create an account, or continue as guest",
   });
 });
-
 
 // ======================
 // Post Routes

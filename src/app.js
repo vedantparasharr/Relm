@@ -4,18 +4,12 @@
 require("dotenv").config();
 
 const path = require("path");
-const crypto = require("crypto");
 
 const dayjs = require("dayjs");
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const express = require("express");
 const cookieParser = require("cookie-parser");
-
-const upload = require("./config/multer");
-const uploadToSupabase = require("./utils/uploadToSupabase");
-const sendOTPEmail = require("./utils/sendOTPEmail");
 
 const userModel = require("./models/userModel");
 const postModel = require("./models/postModel");
@@ -40,12 +34,6 @@ const authRoutes = require("../routes/auth.routes");
 const profileRoutes = require("../routes/profile.routes");
 app.use("/auth", authRoutes);
 app.use("/profile", profileRoutes);
-
-// ======================
-// Authentication Middleware
-// ======================
-
-
 
 const checkAuth = (req) => {
   const token = req.cookies.token;

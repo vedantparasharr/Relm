@@ -1,3 +1,16 @@
+const path = require("path");
+const crypto = require("crypto");
+
+const dayjs = require("dayjs");
+const bcrypt = require("bcrypt");
+
+const express = require("express");
+const cookieParser = require("cookie-parser");
+
+const uploadToSupabase = require("./utils/uploadToSupabase");
+const userModel = require("./models/userModel");
+const postModel = require("./models/postModel");
+
 const renderProfile = async (req, res) => {
   if (!req.user.userId) {
     return res.render("authRequired", {
@@ -112,4 +125,13 @@ const handleSettings = async (req, res) => {
   }
   await user.save();
   res.redirect("/profile");
+};
+
+module.exports = {
+  renderProfile,
+  renderAbout,
+  renderEdit,
+  renderSettings,
+  handleEdit,
+  handleSettings,
 };

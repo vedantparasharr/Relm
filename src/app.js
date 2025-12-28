@@ -32,9 +32,10 @@ app.use(cookieParser());
 
 const authRoutes = require("../routes/auth.routes");
 const profileRoutes = require("../routes/profile.routes");
+const postRoutes = require("../routes/post.routes");
 app.use("/auth", authRoutes);
 app.use("/profile", profileRoutes);
-app.use("/posts", postsRoutes)
+app.use("/posts", postRoutes);
 
 const checkAuth = (req) => {
   const token = req.cookies.token;
@@ -64,10 +65,6 @@ app.get("/", (req, res) => {
 // ======================
 // Post Routes
 // ======================
-app.get("/posts/new", verifyToken, async (req, res) => {
-  const user = await userModel.findById(req.user.userId);
-  res.render("createPost", { user });
-});
 
 app.post("/posts", verifyToken, async (req, res) => {
   const { title, content } = req.body;
@@ -87,17 +84,6 @@ app.post("/posts", verifyToken, async (req, res) => {
   } catch (error) {
     res.status(500).send("Error creating post");
   }
-});
-
-app.get("/posts/:id", verifyToken, async (req, res) => {
-  const post = await postModel
-    .findById(req.params.id)
-    .populate("author")
-    .populate("likes")
-    .populate("comments.author");
-
-  const user = await userModel.findById(req.user.userId);
-  res.render("postDetail", { post, user, dayjs });
 });
 
 app.post("/posts/:id/comments", verifyToken, async (req, res) => {
@@ -133,17 +119,6 @@ app.get(
     }
   }
 );
-
-app.get("/posts/:id/edit", verifyToken, async (req, res) => {
-  const post = await postModel.findById(req.params.id);
-  const user = await userModel.findById(req.user.userId);
-
-  if (!post) return res.status(404).send("Post not found");
-  if (post.author.toString() !== req.user.userId)
-    return res.status(403).send("Unauthorized");
-
-  res.render("editPost", { post, user });
-});
 
 app.post("/posts/:id/edit", verifyToken, async (req, res) => {
   const { title, content } = req.body;

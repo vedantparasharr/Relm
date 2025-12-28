@@ -1,8 +1,7 @@
 const dayjs = require("dayjs");
 
-const userModel = require("./models/userModel");
-const postModel = require("./models/postModel");
-const { render } = require("../src/app");
+const userModel = require("../src/models/userModel");
+const postModel = require("../src/models/postModel");
 
 const renderNew = async (req, res) => {
   const user = await userModel.findById(req.user.userId);

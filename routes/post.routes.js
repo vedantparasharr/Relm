@@ -6,10 +6,27 @@ const {
   renderEdit,
   renderPost,
   renderNew,
+  handleEdit,
+  handleComment,
+  handleDeleteComment,
+  handleLike,
+  handlePost
 } = require("../controllers/posts.controller");
 
 router.get("/new", verifyToken, renderNew);
 router.get("/:id", verifyToken, renderPost);
 router.get("/:id/edit", verifyToken, renderEdit);
+
+router.post("/", verifyToken, handlePost);
+router.post("/:id/comments", verifyToken, handleComment);
+router.post(
+  "/:postId/comments/:commentId/delete",
+  verifyToken,
+  handleDeleteComment
+);
+router.post("/:id/edit", verifyToken, handleEdit);
+router.post("/:id/delete", verifyToken, handleDelete);
+router.post("/:id/like", verifyToken, handleLike);
+
 
 module.exports = router;

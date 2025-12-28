@@ -34,6 +34,7 @@ const authRoutes = require("../routes/auth.routes");
 const profileRoutes = require("../routes/profile.routes");
 app.use("/auth", authRoutes);
 app.use("/profile", profileRoutes);
+app.use("/posts", postsRoutes)
 
 const checkAuth = (req) => {
   const token = req.cookies.token;

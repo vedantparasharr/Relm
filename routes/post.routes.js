@@ -10,7 +10,8 @@ const {
   handleComment,
   handleDeleteComment,
   handleLike,
-  handlePost
+  handlePost,
+  handleDelete,
 } = require("../controllers/posts.controller");
 
 router.get("/new", verifyToken, renderNew);
@@ -27,6 +28,5 @@ router.post(
 router.post("/:id/edit", verifyToken, handleEdit);
 router.post("/:id/delete", verifyToken, handleDelete);
 router.post("/:id/like", verifyToken, handleLike);
-
 
 module.exports = router;

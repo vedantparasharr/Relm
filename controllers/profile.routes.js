@@ -1,17 +1,25 @@
-const path = require("path");
-const crypto = require("crypto");
-
+// ======================
+// Core & Third-Party Imports
+// ======================
 const dayjs = require("dayjs");
 const bcrypt = require("bcrypt");
 
-const express = require("express");
-const cookieParser = require("cookie-parser");
-
-const uploadToSupabase = require("../src/utils/uploadToSupabase");
+// ======================
+// Database Models
+// ======================
 const userModel = require("../src/models/userModel");
 const postModel = require("../src/models/postModel");
 
+// ======================
+// Utilities
+// ======================
+const uploadToSupabase = require("../src/utils/uploadToSupabase");
+
+// ======================
+// Render Profile Page
+// ======================
 const renderProfile = async (req, res) => {
+  // Guest users cannot access profile
   if (!req.user.userId) {
     return res.render("authRequired", {
       title: "Profile Unavailable",
@@ -32,17 +40,24 @@ const renderProfile = async (req, res) => {
   res.render("profile", { user, posts, dayjs });
 };
 
+// ======================
+// Render About Page
+// ======================
 const renderAbout = async (req, res) => {
   const user = await userModel.findById(req.user.userId);
+  if (!user) return res.status(404).send("User not found");
+
   const posts = await postModel
     .find({ author: user._id })
     .populate("author")
     .populate("likes");
 
-  if (!user) return res.status(404).send("User not found");
   res.render("about", { user, posts, dayjs });
 };
 
+// ======================
+// Render Edit Profile Page
+// ======================
 const renderEdit = async (req, res) => {
   const user = await userModel.findById(req.user.userId);
   if (!user) return res.status(404).send("User not found");
@@ -50,6 +65,9 @@ const renderEdit = async (req, res) => {
   res.render("editProfile", { user, dayjs });
 };
 
+// ======================
+// Render Settings Page
+// ======================
 const renderSettings = async (req, res) => {
   const user = await userModel.findById(req.user.userId);
   if (!user) return res.status(404).send("User not found");
@@ -57,9 +75,15 @@ const renderSettings = async (req, res) => {
   res.render("settings", { user, dayjs });
 };
 
+// ======================
+// Handle Profile Edit
+// ======================
 const handleEdit = async (req, res) => {
   const { name, username, bio } = req.body;
+
   const user = await userModel.findById(req.user.userId);
+  if (!user) return res.status(404).send("User not found");
+
   const existingUser = await userModel.findOne({
     username: username.trim().toLowerCase(),
     _id: { $ne: req.user.userId },
@@ -69,18 +93,20 @@ const handleEdit = async (req, res) => {
     return res.status(400).send("Username already taken");
   }
 
-  if (!user) return res.status(404).send("User not found");
   const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
 
   user.name = name?.trim();
   user.username = username.trim().toLowerCase();
   user.bio = bio?.trim();
   if (req.file) user.image = imageUrl;
-  await user.save();
 
+  await user.save();
   res.redirect("/profile");
 };
 
+// ======================
+// Handle Settings Update
+// ======================
 const handleSettings = async (req, res) => {
   const {
     name,
@@ -96,6 +122,7 @@ const handleSettings = async (req, res) => {
   const user = await userModel.findById(req.user.userId);
   if (!user) return res.status(404).send("User not found");
 
+  // Check if password update is requested
   const isUserChangingPassword =
     currentPassword || newPassword || confirmPassword;
 
@@ -104,6 +131,7 @@ const handleSettings = async (req, res) => {
       currentPassword,
       user.password
     );
+
     if (!isPasswordValid)
       return res.status(400).send("Current password is incorrect");
 
@@ -120,13 +148,15 @@ const handleSettings = async (req, res) => {
   user.dateOfBirth = dateOfBirth;
   user.website = website;
   user.bio = bio;
-  if (req.file) {
-    user.image = imageUrl;
-  }
+  if (req.file) user.image = imageUrl;
+
   await user.save();
   res.redirect("/profile");
 };
 
+// ======================
+// Exports
+// ======================
 module.exports = {
   renderProfile,
   renderAbout,

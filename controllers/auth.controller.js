@@ -1,9 +1,24 @@
-const userModel = require("../src/models/userModel");
+// ======================
+// Third-Party & Core Imports
+// ======================
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto"); // required for guest login
+
+// ======================
+// Database Models
+// ======================
+const userModel = require("../src/models/userModel");
+
+// ======================
+// Utilities
+// ======================
 const sendOTPEmail = require("../src/utils/sendOTPEmail");
 const uploadToSupabase = require("../src/utils/uploadToSupabase");
-const jwt = require("jsonwebtoken");
 
+// ======================
+// Render Pages
+// ======================
 const renderSignup = (req, res) => {
   res.render("index");
 };
@@ -25,17 +40,25 @@ const renderReset = async (req, res) => {
   res.render("reset", { user });
 };
 
+// ======================
+// Handle Signout
+// ======================
 const handleSignout = (req, res) => {
   res.clearCookie("token");
   res.redirect("/");
 };
 
+// ======================
+// Handle Signup
+// ======================
 const handleSignup = async (req, res) => {
   const { username, name, email, password, dateOfBirth } = req.body;
   const normalizedUsername = username.trim().toLowerCase();
-  let isUser = await userModel.findOne({
+
+  const isUser = await userModel.findOne({
     $or: [{ email }, { username: normalizedUsername }],
   });
+
   if (isUser) return res.status(400).send("User already exists");
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -51,16 +74,20 @@ const handleSignup = async (req, res) => {
     otpPurpose: "verify_email",
   });
 
+  // Trigger email verification
   if (!user.verified) {
     sendOTPEmail(user).catch(console.error);
     return res.render("verify", { user: user._id });
   }
 };
 
+// ======================
+// Handle Email / OTP Verification
+// ======================
 const handleVerifyEmail = async (req, res) => {
   const { userId, code } = req.body;
-
   const user = await userModel.findById(userId);
+
   if (!user) return res.status(404).send("User not found");
 
   if (!user.otpExpires || user.otpExpires < Date.now()) {
@@ -69,9 +96,11 @@ const handleVerifyEmail = async (req, res) => {
 
   const isValid = await bcrypt.compare(code, user.otpHash);
   if (!isValid) return res.status(400).send("Invalid OTP");
+
   user.otpHash = undefined;
   user.otpExpires = undefined;
 
+  // Email verification flow
   if (user.otpPurpose === "verify_email") {
     user.verified = true;
     user.otpPurpose = undefined;
@@ -89,38 +118,48 @@ const handleVerifyEmail = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
-    res.redirect("/home");
+
+    return res.redirect("/home");
   }
 
+  // Password reset flow
   if (user.otpPurpose === "reset_password") {
     await user.save();
     return res.redirect(`/auth/reset-password/${user._id}`);
   }
+
   res.status(400).send("Invalid OTP request");
 };
 
+// ======================
+// Handle Guest Login
+// ======================
 const handleGuest = async (req, res) => {
   const randomId = crypto.randomUUID();
+
   const token = jwt.sign(
-    {
-      data: randomId,
-    },
+    { data: randomId },
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
+
   res.cookie("token", token, {
     httpOnly: true,
     maxAge: 60 * 60 * 1000,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
   });
+
   res.redirect("/home");
 };
 
+// ======================
+// Handle Signin
+// ======================
 const handleSignin = async (req, res) => {
   const { email, password, remember } = req.body;
 
-  const user = await userModel.findOne({ email: email });
+  const user = await userModel.findOne({ email });
   if (!user) return res.status(400).send("Invalid email or password");
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -132,53 +171,50 @@ const handleSignin = async (req, res) => {
     return res.render("verify", { user: user._id });
   }
 
-  let token;
-  if (remember) {
-    token = jwt.sign(
-      { email: email, userId: user._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "30d",
-      }
-    );
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
-  } else {
-    token = jwt.sign(
-      { email: email, userId: user._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
-    );
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: 1 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
-  }
+  const expiresIn = remember ? "30d" : "1d";
+  const maxAge = remember
+    ? 30 * 24 * 60 * 60 * 1000
+    : 24 * 60 * 60 * 1000;
+
+  const token = jwt.sign(
+    { email: email, userId: user._id },
+    process.env.JWT_SECRET,
+    { expiresIn }
+  );
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    maxAge,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+
   res.redirect("/profile");
 };
 
+// ======================
+// Handle Forgot Password
+// ======================
 const handleForget = async (req, res) => {
   const { email } = req.body;
   const user = await userModel.findOne({ email });
+
   if (!user) {
     return res.status(400).send("No account found with this email");
   }
+
   sendOTPEmail(user).catch(console.error);
   user.otpPurpose = "reset_password";
   user.otpHash = undefined;
   user.otpExpires = undefined;
   await user.save();
+
   res.render("verify", { user: user._id });
 };
 
+// ======================
+// Handle Password Reset
+// ======================
 const handleReset = async (req, res) => {
   const user = await userModel.findById(req.params.user);
   const { password, confirmPassword } = req.body;
@@ -193,9 +229,12 @@ const handleReset = async (req, res) => {
   user.otpExpires = undefined;
   await user.save();
 
-  return res.redirect("/auth/signin");
+  res.redirect("/auth/signin");
 };
 
+// ======================
+// Exports
+// ======================
 module.exports = {
   renderSignup,
   renderSignin,

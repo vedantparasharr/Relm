@@ -1,170 +1,222 @@
-# Relm - Simple Community App ✨🚀🌐
+# Relm — Minimal Social Blogging App
 
-A small, opinionated social/community app built with **Node.js**, **Express**, **MongoDB** and **Supabase** (for avatar uploads). It’s intentionally simple - focused on user accounts, basic posts, likes, and profile management. 🌱🧩💡
+A small, opinionated social/blogging web app built with Node.js, Express and MongoDB. Relm provides user accounts, email verification, guest sessions, post creation, likes, comments, profile pages and image uploads (Supabase).
 
----
-
-## Highlights ⭐📌🎯
-
-- Email/password authentication with JWT stored in an HTTP-only cookie
-- Guest sign-in (temporary token)
-- Create / edit / delete posts
-- Like/unlike posts (AJAX-friendly endpoint)
-- Profile editing with avatar upload to Supabase storage
-- Simple EJS views and server-side rendering
+This README gives a quick project overview, setup instructions, and notes on important implementation details so you (or a reviewer) can run and extend the app quickly.
 
 ---
 
-## Tech stack 🛠️⚙️📦
+## Table of contents
 
-- Node.js + Express
-- MongoDB (Mongoose)
-- Supabase Storage (for avatar uploads)
-- EJS templates
-- Multer for multipart/form-data uploads
-- bcrypt for password hashing
-- jsonwebtoken for auth tokens
-- sharp for image resizing
-
----
-
-## Prerequisites 📋✅🔧
-
-- Node.js (v16+ recommended)
-- A running MongoDB instance (URI)
-- A Supabase project with a storage bucket (see below)
+* [Demo](#demo)
+* [Key features](#key-features)
+* [Tech stack](#tech-stack)
+* [Prerequisites](#prerequisites)
+* [Installation](#installation)
+* [Environment variables](#environment-variables)
+* [Run locally](#run-locally)
+* [Project structure (high level)](#project-structure-high-level)
+* [Routes & controllers (summary)](#routes--controllers-summary)
+* [Auth & security notes](#auth--security-notes)
+* [Development tips](#development-tips)
+* [Contributing](#contributing)
+* [License](#license)
 
 ---
 
-## Quick start 🚀🧭⚡
+## Demo
 
-1. Clone the repo and install dependencies:
+No hosted demo included in this repo. Follow the setup steps below to run the app locally.
+
+---
+
+## Key features
+
+* Email-based signup with OTP verification and password reset
+* Guest sessions (temporary JWT cookie)
+* Post creation, edit, delete
+* Commenting and comment deletion (author-only)
+* Like / unlike mechanism for posts
+* Profile and about pages
+* Image uploads (Supabase storage)
+* Minimal EJS-powered views for server-side rendering
+
+---
+
+## Tech stack
+
+* Node.js + Express
+* MongoDB (Mongoose)
+* EJS templates for views
+* JWT for session/auth
+* bcrypt for password hashing
+* Supabase storage for file uploads
+* dayjs for date formatting
+
+---
+
+## Prerequisites
+
+* Node.js (v18+ recommended)
+* npm or pnpm
+* A running MongoDB instance (Atlas or local)
+* Supabase project (optional, required if you use image upload)
+* An SMTP or email provider for sending OTPs (or a development email transporter)
+
+---
+
+## Installation
 
 ```bash
+# clone the repo
 git clone <repo-url>
-cd <repo-folder>
+cd <repo-directory>
+
+# install dependencies
 npm install
 ```
 
-2. Create a `.env` file in the project root with the following values:
+Create a `.env` file in the project root (see required keys in the next section).
+
+---
+
+## Environment variables
+
+Example `.env` (adjust names to match your deployment provider):
 
 ```env
-MONGO_URI=your_mongo_uri
-JWT_SECRET=some_long_secret
-SUPABASE_URL=https://your-supabase-url
-SUPABASE_ANON_KEY=your_supabase_anon_key
 PORT=3000
+NODE_ENV=development
+MONGO_URI=mongodb+srv://<user>:<pass>@cluster0.mongodb.net/relm?retryWrites=true&w=majority
+JWT_SECRET=your_jwt_secret_here
+SUPABASE_URL=https://xyz.supabase.co
+SUPABASE_ANON_KEY=your_anon_key
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_USER=you@example.com
+EMAIL_PASS=supersecret
 ```
 
-3. Start the app:
+**Behavioral notes**
+
+* `JWT_SECRET` is used to sign cookies/tokens — keep it secret and strong.
+* If you don't configure Supabase, image upload routes will still run but fail when an upload happens.
+
+---
+
+## Run locally
+
+Start the app in development:
 
 ```bash
-# production
-node index.js
+# development start
+npm run dev
 
-# development (if you use nodemon)
-npx nodemon index.js
+# or production start (after building / preparing env)
+npm start
 ```
 
-The server will listen on `http://localhost:3000` (or the value of `PORT`). 🌍🔊🕒
+Open `http://localhost:3000` (or the `PORT` you configured).
 
 ---
 
-## Important environment details 🔐🧠📎
-
-- `JWT_SECRET` - used to sign tokens. Keep it secret.
-- `SUPABASE_URL` and `SUPABASE_ANON_KEY` - used to upload avatars to Supabase storage.
-- The code expects a Supabase storage bucket named exactly: `avatars relm` (make sure that bucket exists and is publicly readable if you want direct public URLs).
-
----
-
-## Routes overview (main ones) 🧭🛣️📡
-
-- `GET /` - Landing page
-- `POST /createUser` - Create account (multipart form; accepts `image` file)
-- `GET /auth/guest` - Create a temporary guest token (expires in 1 hour)
-- `GET /auth/signin` & `POST /auth/signin` - Sign-in form and handler
-- `GET /auth/signout` - Clear cookie and sign out
-- `GET /profile` - Protected route (view your profile)
-- `POST /profile/edit` - Edit profile (multipart; `image` optional)
-- `GET /posts/new` - New post form
-- `POST /posts` - Create a post
-- `GET /posts/:id` - View a post
-- `POST /posts/:id/like` - Toggle like (returns JSON `{ liked, likesCount }`)
-
-**Note:** Most protected routes require the JWT cookie (`token`). ⚠️🍪🔑
-
----
-
-## File structure (relevant files) 🗂️📁🧱
+## Project structure (high level)
 
 ```
-/ (root)
-├─ index.js                # main server file (express app)
-├─ configs/
-│  ├─ supabase.js          # supabase client
-│  └─ multer.js            # multer config
-├─ models/
-│  ├─ userModel.js
-│  └─ postModel.js
-├─ utils/
-│  ├─ uploadToSupabase.js  # upload helper
-│  └─ compressAvatar.js    # sharp image resizing
-├─ public/                 # static assets
-├─ views/                  # EJS templates
-└─ package.json
+├── app.js                # Express app setup (routes, middleware)
+├── server.js             # Server entry (loads env and starts app)
+├── src/
+│   ├── controllers/      # All route handlers (auth, profile, posts)
+│   ├── models/           # Mongoose models (User, Post...)
+│   ├── routes/           # Route definitions
+│   ├── utils/            # Helpers (upload, email, etc.)
+│   └── views/            # EJS templates
+├── public/               # Static assets
+└── README.md
+```
+
+This project intentionally groups domain logic into `controllers` and `routes` so controllers can be easily unit-tested.
+
+---
+
+## Routes & controllers (summary)
+
+Below are the main routes and their responsibilities. This is a short map — open the `src/controllers` and `src/routes` directories for exact implementations.
+
+* `GET /` — Landing page (redirects to `/home` for authenticated users)
+
+* `GET /home` — Home timeline (protected)
+
+* Auth routes (`/auth`)
+
+  * `GET /auth/signup`, `POST /auth/signup`
+  * `GET /auth/signin`, `POST /auth/signin`
+  * `POST /auth/verify` — verify OTP
+  * `POST /auth/guest` — creates temporary guest JWT cookie
+  * `POST /auth/forget` — sends OTP for reset
+  * `POST /auth/reset/:user` — perform password reset
+  * `GET /auth/signout` — clears token cookie
+
+* Profile routes (`/profile`)
+
+  * Profile page, edit, settings, about
+  * Uploads and username validation
+
+* Post routes (`/posts`)
+
+  * Create, view, edit, delete posts
+  * Add / delete comments
+  * Like / unlike posts (returns JSON)
+
+---
+
+## Auth & security notes
+
+* Passwords are hashed with `bcrypt` before storage.
+* Account verification and password reset use OTPs hashed with bcrypt in the DB (compare with bcrypt.compare).
+* JWTs are set as `httpOnly` cookies to reduce XSS risk. Consider `SameSite=Strict` for tighter CSRF protection if your UI is single-origin.
+* Guest sessions use short-lived tokens (1 hour) and do not map to persisted user documents.
+
+**Recommendations**
+
+* Rate limit OTP/email endpoints (to prevent abuse).
+* Limit repeated failed OTP attempts and lock or throttle accordingly.
+* Consider rotating JWT secrets if a secret leak is suspected.
+* Use HTTPS in production and set `secure: true` on cookies.
+
+---
+
+## Development tips
+
+* Consolidate repeated `findById(req.user.userId)` patterns into middleware to reduce duplication and centralize error handling.
+* Move OTP generation + validation into a dedicated service for better testability.
+* Cache heavy queries if pages become slow (Redis or similar).
+* Use a single DB operation to toggle likes (optimistic toggling) if you want fewer round trips.
+
+---
+
+## Contributing
+
+Feel free to open issues or PRs. Keep changes small, add tests for new behaviors, and follow the existing code style.
+
+---
+
+## License
+
+This project has no license file in the repo by default. Add a `LICENSE` file or change the following line if you want an open-source license:
+
+```
+MIT License
 ```
 
 ---
 
-## Supabase setup ☁️🗄️🔗
+## Final notes
 
-1. Create a Supabase project at [https://supabase.com](https://supabase.com).
-2. Create a storage bucket named `avatars relm`.
-3. Ensure uploaded files are readable (public) or adapt `getPublicUrl` usage to your security needs.
-4. Copy the project URL and anon key into `.env`.
+This README is intended to help you get started and to explain key implementation choices. If you want, I can also:
 
----
+* Create a `.env.example` file
+* Add a Postman collection for core API flows
+* Suggest unit tests and provide a testing scaffold
 
-## Notes & tips 📝💡🧠
-
-- The app stores JWT tokens in an HTTP-only cookie named `token`.
-- Guest accounts are created via `/auth/guest` and use a token containing `data: randomId` (no persisted user document). Guests cannot access `/profile`.
-- Password changes are handled in `/profile/settings` - the server checks the current password before updating.
-- Image uploads are compressed to 256×256 and saved as JPEG via `sharp` before uploading to Supabase.
-
----
-
-## Example `curl` (create user) 🧪📮🖥️
-
-```bash
-curl -X POST \
-  -F "username=alice" \
-  -F "name=Alice" \
-  -F "email=alice@example.com" \
-  -F "password=supersecret" \
-  -F "image=@/path/to/avatar.jpg" \
-  http://localhost:3000/createUser
-```
-
-**Sign in** (form-based; you can POST `email` and `password` to `/auth/signin`). 🔐➡️👤
-
----
-
-## Contributing 🤝🌱🛠️
-
-This project is intentionally small - PRs are welcome for bug fixes, small features, and documentation improvements. 🙌📖✨
-
----
-
-## License 📄⚖️✔️
-
-MIT
-
----
-
-## Author 👤💼✨
-
-Built with ❤️ by **Vedant Parasharr** ✨🚀  
-Connect on LinkedIn: https://www.linkedin.com/in/vedantparasharr
-
+Happy hacking — ship fast, iterate often.

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../src/config/multer");
+const upload = require("../config/multer");
 
 const {
   renderSignup,
@@ -15,7 +15,7 @@ const {
   handleForget,
   handleReset,
 } = require("../controllers/auth.controller");
-const app = require("../src/app");
+const app = require("../app");
 
 // ==================================
 // GET REQUESTS

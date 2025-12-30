@@ -7,13 +7,13 @@ const bcrypt = require("bcrypt");
 // ======================
 // Database Models
 // ======================
-const userModel = require("../src/models/userModel");
-const postModel = require("../src/models/postModel");
+const userModel = require("../models/userModel");
+const postModel = require("../models/postModel");
 
 // ======================
 // Utilities
 // ======================
-const uploadToSupabase = require("../src/utils/uploadToSupabase");
+const uploadToSupabase = require("../utils/uploadToSupabase");
 
 // ======================
 // Render Profile Page

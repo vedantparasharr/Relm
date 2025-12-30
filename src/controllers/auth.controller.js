@@ -8,13 +8,13 @@ const crypto = require("crypto"); // required for guest login
 // ======================
 // Database Models
 // ======================
-const userModel = require("../src/models/userModel");
+const userModel = require("../models/userModel");
 
 // ======================
 // Utilities
 // ======================
-const sendOTPEmail = require("../src/utils/sendOTPEmail");
-const uploadToSupabase = require("../src/utils/uploadToSupabase");
+const sendOTPEmail = require("../utils/sendOTPEmail");
+const uploadToSupabase = require("../utils/uploadToSupabase");
 
 // ======================
 // Render Pages

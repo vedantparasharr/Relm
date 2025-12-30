@@ -6,8 +6,8 @@ const dayjs = require("dayjs");
 // ======================
 // Database Models
 // ======================
-const userModel = require("../src/models/userModel");
-const postModel = require("../src/models/postModel");
+const userModel = require("../models/userModel");
+const postModel = require("../models/postModel");
 
 // ======================
 // Render Create Post Page

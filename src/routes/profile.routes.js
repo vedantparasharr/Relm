@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const verifyToken = require("../src/utils/verifyToken");
+const verifyToken = require("../utils/verifyToken");
 const {
   renderProfile,
   renderAbout,
@@ -10,7 +10,7 @@ const {
   handleEdit,
   handleSettings,
 } = require("../controllers/profile.routes");
-const upload = require("../src/config/multer");
+const upload = require("../config/multer");
 
 router.get("/", verifyToken, renderProfile);
 router.get("/about", verifyToken, renderAbout);

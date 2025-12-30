@@ -41,9 +41,9 @@ app.use(cookieParser());
 // ======================
 // Route Modules
 // ======================
-const authRoutes = require("../routes/auth.routes");
-const profileRoutes = require("../routes/profile.routes");
-const postRoutes = require("../routes/post.routes");
+const authRoutes = require("../src/routes/auth.routes");
+const profileRoutes = require("../src/routes/profile.routes");
+const postRoutes = require("../src/routes/post.routes");
 
 // ======================
 // Route Mounting

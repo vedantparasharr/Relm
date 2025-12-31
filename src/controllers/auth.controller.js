@@ -137,11 +137,9 @@ const handleVerifyEmail = async (req, res) => {
 const handleGuest = async (req, res) => {
   const randomId = crypto.randomUUID();
 
-  const token = jwt.sign(
-    { data: randomId },
-    process.env.JWT_SECRET,
-    { expiresIn: "1h" }
-  );
+  const token = jwt.sign({ data: randomId }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -160,21 +158,20 @@ const handleSignin = async (req, res) => {
   const { email, password, remember } = req.body;
 
   const user = await userModel.findOne({ email });
-  if (!user) return res.status(400).send("Invalid email or password");
+  if (!user)
+    return res.status(400).json({ message: "Invalid email or password" });
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid)
-    return res.status(400).send("Invalid email or password");
+    return res.status(400).json({ message: "Invalid email or password" });
 
   if (!user.verified) {
     sendOTPEmail(user).catch(console.error);
-    return res.render("verify", { user: user._id });
+    return res.json({ next: "verify", user: user._id });
   }
 
   const expiresIn = remember ? "30d" : "1d";
-  const maxAge = remember
-    ? 30 * 24 * 60 * 60 * 1000
-    : 24 * 60 * 60 * 1000;
+  const maxAge = remember ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
 
   const token = jwt.sign(
     { email: email, userId: user._id },
@@ -188,7 +185,7 @@ const handleSignin = async (req, res) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
   });
-
+  res.json();
   res.redirect("/profile");
 };
 

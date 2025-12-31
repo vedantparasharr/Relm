@@ -31,7 +31,7 @@ router.get("/signout", handleSignout);
 // POST REQUESTS
 // =============================
 router.post("/signup", upload.single("image"), handleSignup);
-router.post("/auth/verify-email", handleVerifyEmail);
+router.post("/verify-email", handleVerifyEmail);
 router.get("/guest", handleGuest);
 router.post("/signin", handleSignin);
 router.post("/forget", handleForget);

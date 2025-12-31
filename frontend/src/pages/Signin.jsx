@@ -1,7 +1,37 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Signin = () => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const res = await axios.post("/auth/signin", {
+        email,
+        password,
+        remember,
+      });
+
+      navigate("/home");
+    } catch (error) {
+      const data = error.response?.data;
+
+      if (data?.next === "verify") {
+        navigate(`/verify/${data.userId}`);
+      } else {
+        setError(data?.message || "Signin failed");
+      }
+    }
+  };
+
   return (
     <main className="min-h-screen max-w-7xl flex justify-center gap-4 items-center mx-auto">
       <div className="hidden lg:flex items-center justify-center w-[520px] overflow-hidden">
@@ -15,17 +45,16 @@ const Signin = () => {
         <div className="flex items-center overflow-hidden justify-center min-h-32 mb-8">
           <img className="w-48" src="/logo-dark.png" alt="relm logo" />
         </div>
-        <form action="/auth/signin" className="space-y-4">
+        <form action={handleSubmit} className="space-y-4">
           <div className="flex flex-col gap-2">
             <label className="text-sm" htmlFor="email">
               Email
             </label>
             <input
               className="px-3 py-2 text-sm placeholder-zinc-400 bg-zinc-900/40 border border-zinc-700 rounded-md zinc-800 outline-none focus:ring-2 focus:ring-blue-500"
-              type="text"
-              name="email"
-              id="email"
               placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -34,15 +63,20 @@ const Signin = () => {
             </label>
             <input
               className="px-3 py-2 text-sm placeholder-zinc-400 bg-zinc-900/40 border border-zinc-700 rounded-md zinc-800 outline-none focus:ring-2 focus:ring-blue-500"
-              type="password"
-              name="password"
-              id="password"
               placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <div className="flex justify-between">
             <div className="flex items-center gap-1">
-              <input type="checkbox" name="remember" id="remember" />
+              <input
+                type="checkbox"
+                name="remember"
+                id="remember"
+                value={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+              />
               <label htmlFor="remember" className="text-sm text-zinc-300">
                 Remember me
               </label>

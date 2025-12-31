@@ -1,10 +1,13 @@
 import "./App.css";
+import { Routes, Route, Link } from "react-router-dom";
+
+import Signin from "./pages/Signin";
 
 const App = () => {
   return (
-    <>
-      <h1 className="text-2xl text-red-500">Hello</h1>
-    </>
+    <Routes>
+      <Route path="/signin" element={<Signin />}></Route>
+    </Routes>
   );
 };
 

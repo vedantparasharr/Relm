@@ -1,7 +1,39 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 const Profile = () => {
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
+  const [email, setEmail] = useState("");
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/auth/me", {
+          withCredentials: true,
+        });
+
+        const user = res.data.user;
+
+        setUsername(user.username);
+        setName(user.name);
+        setBio(user.bio || "");
+        setEmail(user.email);
+        setPosts(user.posts || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []); 
+
   return (
     <main className="flex flex-col min-h-screen text-white bg-black tracking-tight space-y-10">
       <nav className="py-4 px-6 border-b border-zinc-800">
@@ -23,10 +55,8 @@ const Profile = () => {
           </div>
 
           <div className="flex-1">
-            <p className="font-semibold text-2xl text-zinc-200">
-              Vedant Parashar
-            </p>
-            <h3 className="font-medium text-zinc-500 mt-0.5">@vedant</h3>
+            <p className="font-semibold text-2xl text-zinc-200">{name}</p>
+            <h3 className="font-medium text-zinc-500 mt-0.5">@{username}</h3>
 
             <div className="flex gap-6 text-sm text-zinc-300 mt-4">
               <p>
@@ -40,16 +70,16 @@ const Profile = () => {
               </p>
             </div>
 
-            <p className="text-zinc-300 max-w-xl mt-5 leading-relaxed">
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ducimus
-              velit officiis consectetur commodi aliquid veniam, error laborum
-              ex corporis.
-            </p>
+            <p className="text-zinc-300 max-w-xl mt-5 leading-relaxed">{bio}</p>
           </div>
         </div>
-        <div className="flex w-full gap-4 justify-between" >
-          <button className="py-4 px-6 font-medium w-full hover:opacity-80 bg-zinc-800 rounded-xl " >Edit Profile</button>
-          <button className="py-4 px-6 font-medium w-full hover:opacity-90 bg-zinc-800 rounded-xl">Settings</button>
+        <div className="flex w-full gap-4 justify-between">
+          <button className="py-4 px-6 font-medium w-full hover:opacity-80 bg-zinc-800 rounded-xl ">
+            Edit Profile
+          </button>
+          <button className="py-4 px-6 font-medium w-full hover:opacity-90 bg-zinc-800 rounded-xl">
+            Settings
+          </button>
         </div>
       </section>
     </main>

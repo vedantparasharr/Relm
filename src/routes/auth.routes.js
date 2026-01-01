@@ -14,8 +14,10 @@ const {
   handleSignin,
   handleForget,
   handleReset,
+  me,
 } = require("../controllers/auth.controller");
 const app = require("../app");
+const verifyToken = require("../utils/verifyToken");
 
 // ==================================
 // GET REQUESTS
@@ -26,6 +28,7 @@ router.get("/signin", renderSignin);
 router.get("/forget", renderForget);
 router.get("/reset-password/:user", renderReset);
 router.get("/signout", handleSignout);
+app.get("/me", verifyToken, me);
 
 // =============================
 // POST REQUESTS

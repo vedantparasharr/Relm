@@ -9,7 +9,7 @@ const {
   renderSettings,
   handleEdit,
   handleSettings,
-} = require("../controllers/profile.routes");
+} = require("../controllers/profile.controller");
 const upload = require("../config/multer");
 
 router.get("/", verifyToken, renderProfile);

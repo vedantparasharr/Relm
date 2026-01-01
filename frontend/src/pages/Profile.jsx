@@ -8,6 +8,7 @@ const Profile = () => {
   const [bio, setBio] = useState("");
   const [email, setEmail] = useState("");
   const [posts, setPosts] = useState([]);
+  const [profilePicture, setProfilePicture] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,6 +21,7 @@ const Profile = () => {
         const user = res.data.user;
         const posts = res.data.posts;
 
+        setProfilePicture(user.image);
         setUsername(user.username);
         setName(user.name);
         setBio(user.bio || "");
@@ -49,7 +51,7 @@ const Profile = () => {
         <div className="flex items-start gap-8 pb-8 w-full">
           <div className="h-40 w-40 rounded-full overflow-hidden shrink-0">
             <img
-              src="/default-avatar.png"
+              src={profilePicture}
               alt="default avatar"
               className="h-full w-full object-cover"
             />

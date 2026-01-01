@@ -37,7 +37,7 @@ const renderProfile = async (req, res) => {
     .populate("author")
     .populate("likes");
 
-  res.render("profile", { user, posts, dayjs });
+  res.json({ user, posts });
 };
 
 // ======================

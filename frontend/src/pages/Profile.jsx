@@ -13,17 +13,18 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/auth/me", {
+        const res = await axios.get("http://localhost:3000/profile", {
           withCredentials: true,
         });
 
         const user = res.data.user;
+        const posts = res.data.posts;
 
         setUsername(user.username);
         setName(user.name);
         setBio(user.bio || "");
         setEmail(user.email);
-        setPosts(user.posts || []);
+        setPosts(posts || []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -32,7 +33,7 @@ const Profile = () => {
     };
 
     fetchProfile();
-  }, []); 
+  }, []);
 
   return (
     <main className="flex flex-col min-h-screen text-white bg-black tracking-tight space-y-10">
@@ -60,7 +61,7 @@ const Profile = () => {
 
             <div className="flex gap-6 text-sm text-zinc-300 mt-4">
               <p>
-                <span className="font-semibold">0</span> Posts
+                <span className="font-semibold">{posts.length}</span> Posts
               </p>
               <p>
                 <span className="font-semibold">0</span> Followers

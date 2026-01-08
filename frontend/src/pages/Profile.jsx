@@ -11,29 +11,30 @@ const Profile = () => {
   const [profilePicture, setProfilePicture] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const fetchProfile = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/profile", {
+        withCredentials: true,
+      });
+
+      const user = res.data.user;
+      const posts = res.data.posts;
+      console.log(posts);
+
+      setProfilePicture(user.image);
+      setUsername(user.username);
+      setName(user.name);
+      setBio(user.bio || "");
+      setEmail(user.email);
+      setPosts(posts || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axios.get("http://localhost:3000/profile", {
-          withCredentials: true,
-        });
-
-        const user = res.data.user;
-        const posts = res.data.posts;
-
-        setProfilePicture(user.image);
-        setUsername(user.username);
-        setName(user.name);
-        setBio(user.bio || "");
-        setEmail(user.email);
-        setPosts(posts || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProfile();
   }, []);
 
@@ -83,6 +84,25 @@ const Profile = () => {
           <button className="py-4 px-6 font-medium w-full hover:opacity-90 bg-zinc-800 rounded-xl">
             Settings
           </button>
+        </div>
+        <div className="flex w-full gap-4 justify-between mt-4">
+          <div className="py-4 px-6 font-medium w-full text-center hover:opacity-80 bg-zinc-800 rounded-xl">
+            Posts
+          </div>
+          <div className="py-4 px-6 font-medium w-full text-center hover:opacity-90 bg-zinc-800 rounded-xl">
+            About
+          </div>
+        </div>
+        <div className="w-full px-6 py-4 rounded-2xl bg-zinc-500 mt-8">
+          <div>
+            {console.log(posts)}
+
+            {posts.forEach((post) => {
+              console.log(post);
+              console.log(post.title)
+            })}
+          </div>
+
         </div>
       </section>
     </main>

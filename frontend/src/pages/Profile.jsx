@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import Post from "../components/Post";
 
 const Profile = () => {
   const [username, setUsername] = useState("");
@@ -94,15 +95,21 @@ const Profile = () => {
           </div>
         </div>
         <div className="w-full px-6 py-4 rounded-2xl bg-zinc-500 mt-8">
-          <div>
-            {console.log(posts)}
-
-            {posts.forEach((post) => {
-              console.log(post);
-              console.log(post.title)
-            })}
+          <div className="flex flex-col gap-4">
+            {posts.map((post) => (
+              <Post
+                key={post._id}
+                avatar={profilePicture}
+                author={name}
+                time={post.createdAt}
+                title={post.title}
+                excerpt={post.content}
+                likes={post.likes?.length || 0}
+                comments={post.comments?.length || 0}
+                readTime="3 min read"
+              />
+            ))}
           </div>
-
         </div>
       </section>
     </main>

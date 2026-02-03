@@ -94,11 +94,12 @@ const Profile = () => {
             About
           </div>
         </div>
-        <div className="w-full px-6 py-4 rounded-2xl bg-zinc-500 mt-8">
-          <div className="flex flex-col gap-4">
+        <div className="w-full rounded-2xl bg-zinc-900 mt-8 p-4 space-y-4">
+          <div className="flex flex-col min-w-full ">
             {posts.map((post) => (
               <Post
                 key={post._id}
+                postId={post._id}
                 avatar={profilePicture}
                 author={name}
                 time={post.createdAt}
@@ -106,7 +107,6 @@ const Profile = () => {
                 excerpt={post.content}
                 likes={post.likes?.length || 0}
                 comments={post.comments?.length || 0}
-                readTime="3 min read"
               />
             ))}
           </div>

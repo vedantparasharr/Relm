@@ -52,7 +52,7 @@ const renderAbout = async (req, res) => {
     .populate("author")
     .populate("likes");
 
-  res.render("about", { user, posts, dayjs });
+  res.json({ user, posts });
 };
 
 // ======================

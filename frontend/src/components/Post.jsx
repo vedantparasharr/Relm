@@ -1,7 +1,11 @@
 // src/components/Post.jsx
 import { Heart, MessageCircle } from "lucide-react";
 import { useState } from "react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
 import axios from "axios";
+dayjs.extend(relativeTime);
 
 const Post = ({
   userId,
@@ -13,7 +17,6 @@ const Post = ({
   excerpt,
   likes = [],
   comments = [],
-  fetchProfile,
 }) => {
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(likes.some((u) => u._id === userId));
@@ -52,7 +55,7 @@ const Post = ({
         />
         <div className="flex-1">
           <p className="text-sm font-semibold text-zinc-200">{author}</p>
-          <p className="text-xs text-zinc-500">{time}</p>
+          <p className="text-xs text-zinc-500">{dayjs(time).fromNow()}</p>
         </div>
       </div>
 

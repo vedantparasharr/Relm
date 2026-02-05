@@ -150,29 +150,19 @@ const handleDelete = async (req, res) => {
 // ======================
 // Handle Like / Unlike
 // ======================
+// controllers/postController.js (handleLike)
 const handleLike = async (req, res) => {
   const post = await postModel.findById(req.params.id);
   const userId = req.user.userId;
-
-  if (!post) return res.status(403).send("Post not found!");
-
-  const hasLiked = post.likes.some(
-    (u) => u.toString() === userId.toString()
+  if (!post) return res.status(404).send("Post not found!");
+  const hasLiked = post.likes.some((u) => u.toString() === userId.toString());
+  const updatedPost = await postModel.findByIdAndUpdate(
+    post._id,
+    hasLiked ? { $pull: { likes: userId } } : { $addToSet: { likes: userId } },
+    { new: true }
   );
 
-  if (hasLiked) {
-    await postModel.findByIdAndUpdate(post._id, {
-      $pull: { likes: userId },
-    });
-  } else {
-    await postModel.findByIdAndUpdate(post._id, {
-      $addToSet: { likes: userId },
-    });
-  }
-
-  const updatedPost = await postModel.findById(post._id);
-
-  res.json({
+  return res.json({
     liked: !hasLiked,
     likesCount: updatedPost.likes.length,
   });

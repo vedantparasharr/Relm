@@ -1,39 +1,58 @@
+// src/components/Post.jsx
 import { Heart, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 
 const Post = ({
+  userId,
   postId,
   author,
   avatar,
   time,
   title,
   excerpt,
-  likes,
-  comments,
+  likes = [],
+  comments = [],
+  fetchProfile,
 }) => {
-  const [likesCount, setLikesCount] = useState(likes);
-  const [liked, setLiked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [liked, setLiked] = useState(likes.some((u) => u._id === userId));
+  const [likesCount, setLikesCount] = useState(likes.length);
 
   const handleLike = async () => {
-    const res = await axios.post(
-      `http://localhost:3000/posts/${postId}/like`,
-      {},
-      {
-        withCredentials: true,
+    if (loading) return;
+    setLikesCount((prev) => {
+      if (liked) {
+        prev + 1;
+      } else {
+        prev - 1;
       }
-    );
-    console.log(res.data);
-    const { liked, likesCount } = res.data;
-    setLikesCount(likesCount)
+    });
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `http://localhost:3000/posts/${postId}/like`,
+        {},
+        { withCredentials: true },
+      );
+      const { likesCount, liked } = res.data;
+      setLikesCount(likesCount);
+      setLiked(liked);
+      console.log(res.data);
+    } catch (error) {
+      console.error("Error liking post:", error);
+    } finally {
+      fetchProfile();
+      setLoading(false);
+      console.log(likes);
+    }
   };
 
   return (
     <div className="w-full mx-auto bg-zinc-800 border border-zinc-700 rounded-2xl p-4 text-zinc-200">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-3">
         <img
-          src={avatar}
+          src={avatar || undefined}
           alt={author}
           className="w-10 h-10 rounded-full object-cover"
         />
@@ -43,7 +62,6 @@ const Post = ({
         </div>
       </div>
 
-      {/* Content */}
       <div className="space-y-2">
         <h2 className="text-lg font-semibold text-zinc-100 leading-snug">
           {title}
@@ -56,19 +74,22 @@ const Post = ({
         </button>
       </div>
 
-      {/* Actions */}
       <div className="flex items-center gap-6 mt-4 text-zinc-400">
         <div
           onClick={handleLike}
-          className="flex items-center gap-1 cursor-pointer hover:text-red-400 transition"
+          role="button"
+          aria-disabled={loading}
+          className={`flex items-center gap-1 cursor-pointer transition ${
+            liked ? "text-red-500" : "hover:text-red-400"
+          } ${loading ? "opacity-60 pointer-events-none" : ""}`}
         >
-          <Heart size={18} />
-          <span className="text-sm">{likesCount.toLocaleString()}</span>
+          <Heart size={18} fill={liked ? "currentColor" : "none"} />
+          <span className="text-sm">{likesCount}</span>
         </div>
 
         <div className="flex items-center gap-1 cursor-pointer hover:text-zinc-200 transition">
           <MessageCircle size={18} />
-          <span className="text-sm">{comments}</span>
+          <span className="text-sm">{comments.length}</span>
         </div>
       </div>
     </div>

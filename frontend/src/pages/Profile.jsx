@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Post from "../components/Post";
 
 const Profile = () => {
+  const [userId, setUserId] = useState("");
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
@@ -20,8 +21,8 @@ const Profile = () => {
 
       const user = res.data.user;
       const posts = res.data.posts;
-      console.log(posts);
 
+      setUserId(user._id);
       setProfilePicture(user.image);
       setUsername(user.username);
       setName(user.name);
@@ -52,11 +53,17 @@ const Profile = () => {
       <section className="rounded-xl flex flex-col items-center w-full max-w-3xl px-6 py-8 mx-auto bg-zinc-900">
         <div className="flex items-start gap-8 pb-8 w-full">
           <div className="h-40 w-40 rounded-full overflow-hidden shrink-0">
-            <img
-              src={profilePicture}
-              alt="default avatar"
-              className="h-full w-full object-cover"
-            />
+            {profilePicture ? (
+              <img
+                src={profilePicture}
+                alt="avatar"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full bg-zinc-700 flex items-center justify-center text-zinc-300 text-3xl">
+                {name ? name[0].toUpperCase() : "U"}
+              </div>
+            )}
           </div>
 
           <div className="flex-1">
@@ -99,14 +106,16 @@ const Profile = () => {
             {posts.map((post) => (
               <Post
                 key={post._id}
+                userId={userId}
                 postId={post._id}
                 avatar={profilePicture}
                 author={name}
                 time={post.createdAt}
                 title={post.title}
                 excerpt={post.content}
-                likes={post.likes?.length || 0}
-                comments={post.comments?.length || 0}
+                likes={post.likes}
+                comments={post.comments}
+                fetchProfile={fetchProfile}
               />
             ))}
           </div>

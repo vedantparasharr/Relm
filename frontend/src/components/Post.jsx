@@ -21,13 +21,8 @@ const Post = ({
 
   const handleLike = async () => {
     if (loading) return;
-    setLikesCount((prev) => {
-      if (liked) {
-        prev + 1;
-      } else {
-        prev - 1;
-      }
-    });
+    setLikesCount((prev) => (liked ? prev - 1 : prev + 1));
+    setLiked((prev) => !prev);
     setLoading(true);
     try {
       const res = await axios.post(
@@ -42,7 +37,6 @@ const Post = ({
     } catch (error) {
       console.error("Error liking post:", error);
     } finally {
-      fetchProfile();
       setLoading(false);
       console.log(likes);
     }

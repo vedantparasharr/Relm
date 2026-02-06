@@ -54,7 +54,7 @@ const Profile = () => {
   }
 
   return (
-    <main className="flex flex-col min-h-screen text-white bg-black tracking-tight space-y-10">
+    <main className="flex flex-col min-h-screen text-white bg-black tracking-tight space-y-10 pb-10 ">
       <Nav />
 
       <section className="rounded-xl flex flex-col items-center w-full max-w-3xl px-6 py-8 mx-auto bg-zinc-900">

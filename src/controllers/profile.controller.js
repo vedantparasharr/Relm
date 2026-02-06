@@ -111,47 +111,57 @@ const handleSettings = async (req, res) => {
   const {
     name,
     username,
-    dateOfBirth,
-    website,
     bio,
+    dateOfBirth,
     currentPassword,
     newPassword,
     confirmPassword,
   } = req.body;
 
   const user = await userModel.findById(req.user.userId);
-  if (!user) return res.status(404).send("User not found");
+  if (!user) return res.status(404).json("User not found");
 
-  // Check if password update is requested
   const isUserChangingPassword =
-    currentPassword || newPassword || confirmPassword;
+    currentPassword && newPassword && confirmPassword;
+
+  if (currentPassword || newPassword || confirmPassword) {
+    if (!isUserChangingPassword)
+      return res.status(400).json({ message: "All passwords are required" });
+  }
 
   if (isUserChangingPassword) {
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
-      user.password
+      user.password,
     );
 
     if (!isPasswordValid)
-      return res.status(400).send("Current password is incorrect");
+      return res.status(400).json({ message: "Current password is incorrect" });
 
     if (newPassword !== confirmPassword)
-      return res.status(400).send("New passwords do not match");
+      return res.status(400).json({ message: "New passwords do not match" });
 
     user.password = await bcrypt.hash(newPassword, 10);
   }
 
   const imageUrl = req.file ? await uploadToSupabase(req.file) : undefined;
 
-  user.name = name;
-  user.username = username.trim().toLowerCase();
-  user.dateOfBirth = dateOfBirth;
-  user.website = website;
-  user.bio = bio;
+  if (name) user.name = name;
+  if (username) user.username = username.trim().toLowerCase();
+  if (bio !== undefined) user.bio = bio;
+  if (dateOfBirth) user.dateOfBirth = dateOfBirth;
   if (req.file) user.image = imageUrl;
 
   await user.save();
-  res.redirect("/profile");
+  res.json({
+    message: "Profile updated successfully",
+    user: {
+      name: user.name,
+      username: user.username,
+      bio: user.bio,
+      image: user.image,
+    },
+  });
 };
 
 // ======================

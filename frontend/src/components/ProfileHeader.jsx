@@ -10,7 +10,6 @@ const ProfileHeader = ({
   activeTab,
   setActiveTab,
 }) => {
-
   return (
     <>
       <div className="flex items-start gap-8 pb-8 w-full">
@@ -46,12 +45,11 @@ const ProfileHeader = ({
 
           <p className="text-zinc-300 max-w-xl mt-5 leading-relaxed">{bio}</p>
           <div className="flex gap-3 mt-5">
-            <Link to={"/profile/edit"} className="px-4 py-2 text-sm bg-zinc-800/70 rounded-lg hover:bg-zinc-700 transition">
-              Edit Profile
-            </Link>
-
-            <Link to={"/profile/settings"} className="px-4 py-2 text-sm bg-zinc-800/70 rounded-lg hover:bg-zinc-700 transition">
-              Settings
+            <Link
+              to={"/profile/settings"}
+              className="px-4 py-2 text-sm bg-zinc-800/70 rounded-lg hover:bg-zinc-700 transition"
+            >
+              Account Settings
             </Link>
           </div>
         </div>

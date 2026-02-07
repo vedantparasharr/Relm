@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   // Display values (for header - only update on save)
   const [displayName, setDisplayName] = useState("");
@@ -21,6 +24,7 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -70,39 +74,47 @@ const Settings = () => {
 
   const handleSubmission = async () => {
     try {
+      const formData = new FormData();
+
+      formData.append("name", name);
+      formData.append("username", username);
+      formData.append("bio", bio);
+      formData.append("dateOfBirth", dateOfBirth);
+      formData.append("currentPassword", currentPassword);
+      formData.append("newPassword", newPassword);
+      formData.append("confirmPassword", confirmPassword);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
       const res = await axios.post(
         "http://localhost:3000/profile/settings",
-        {
-          name,
-          username,
-          bio,
-          dateOfBirth,
-          currentPassword,
-          newPassword,
-          confirmPassword,
-        },
+        formData,
         {
           withCredentials: true,
-        }
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
       );
-      
+
       console.log(res.data);
 
       // Update display values only after successful save
-      setDisplayName(name);
-      setDisplayUsername(username);
-      setDisplayBio(bio);
+      setDisplayName(res.data.user.name);
+      setDisplayUsername(res.data.user.username);
+      setDisplayBio(res.data.user.bio);
+      setDisplayImage(res.data.user.image);
 
-      // Clear password fields
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+      setImageFile(null);
 
-      // Optional: Show success message
-      alert("Settings saved successfully!");
+      navigate("/profile");
     } catch (err) {
       console.error(err);
-      // Optional: Show error message
       alert("Failed to save settings");
     }
   };
@@ -139,7 +151,24 @@ const Settings = () => {
                   alt="avatar"
                   className="h-20 w-20 rounded-full object-cover ring-2 ring-zinc-700"
                 />
-                <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-green-500 ring-2 ring-zinc-900" />
+
+                <label className="absolute bottom-0 right-0 bg-zinc-800 text-xs px-2 py-1 rounded cursor-pointer">
+                  Edit
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+
+                      setImageFile(file);
+
+                      // preview immediately
+                      setDisplayImage(URL.createObjectURL(file));
+                    }}
+                  />
+                </label>
               </div>
 
               <div className="flex flex-col">

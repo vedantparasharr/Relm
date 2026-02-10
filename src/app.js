@@ -29,7 +29,7 @@ app.use(
   cors({
     origin: "http://localhost:5173",
     credentials: true,
-  })
+  }),
 );
 
 // ======================
@@ -106,9 +106,9 @@ app.get("/home", verifyToken, async (req, res) => {
       .populate("author", "username name image")
       .lean();
 
-    res.render("home", { posts, user, dayjs });
+    res.json({ posts });
   } catch (error) {
-    res.status(500).send("Server Error");
+    res.status(500).json("Server Error");
   }
 });
 

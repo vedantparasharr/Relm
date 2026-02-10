@@ -159,7 +159,7 @@ const handleLike = async (req, res) => {
   const updatedPost = await postModel.findByIdAndUpdate(
     post._id,
     hasLiked ? { $pull: { likes: userId } } : { $addToSet: { likes: userId } },
-    { new: true }
+    { new: true },
   );
 
   return res.json({

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Nav from "../components/Nav";
 import ProfileHeader from "../components/ProfileHeader";
-import Posts from "../components/Posts";
 import About from "../components/About";
+import Post from "../components/Post";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
@@ -47,46 +47,65 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black flex items-center justify-center text-zinc-400">
-        Loading profile…
-      </main>
+      <div className="min-h-screen bg-black text-white font-sans flex items-center justify-center">
+        <div className="animate-pulse text-neutral-500">Loading profile...</div>
+      </div>
     );
   }
 
   return (
-    <main className="flex flex-col min-h-screen text-white bg-black tracking-tight space-y-10 pb-10 ">
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
+      {/* Top Navigation Bar */}
       <Nav />
 
-      <section className="rounded-xl flex flex-col items-center w-full max-w-3xl px-6 py-8 mx-auto bg-zinc-900">
-        <ProfileHeader
-          username={username}
-          name={name}
-          bio={bio}
-          profilePicture={profilePicture}
-          postsCount={posts.length}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-        />
+      <main className="max-w-2xl mx-auto pt-4 pb-20 px-0 sm:px-4">
+        {/* Profile Header Card - Styled to match 'Create Post' input area */}
+        <div className="mb-6 px-4 py-6 sm:rounded-xl bg-neutral-900/50 border border-neutral-800 transition-colors duration-200">
+          <ProfileHeader
+            username={username}
+            name={name}
+            bio={bio}
+            profilePicture={profilePicture}
+            postsCount={posts.length}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+        </div>
 
-        <div className="w-full mt-8">
+        {/* Content Area */}
+        <div className="flex flex-col gap-4">
+          {/* Posts Feed - Matches Home Feed styling */}
           {activeTab === "posts" && (
-            <Posts
-              posts={posts}
-              userId={userId}
-              profilePicture={profilePicture}
-              name={name}
-            />
+            <>
+              {posts.length > 0 ? (
+                posts.map((post) => <Post key={post._id} post={post} userId={userId} />)
+              ) : (
+                <div className="py-8 text-center text-neutral-600 text-sm">
+                  No posts yet.
+                </div>
+              )}
+            </>
           )}
 
+          {/* About Section - Wrapped in a consistent card container */}
           {activeTab === "about" && (
-            <About
-              user={{ username, email, bio, createdAt }}
-              postsCount={posts.length}
-            />
+            <div className="px-4 py-6 sm:rounded-xl bg-neutral-900/50 border border-neutral-800">
+              <About
+                user={{ username, email, bio, createdAt }}
+                postsCount={posts.length}
+              />
+            </div>
           )}
         </div>
-      </section>
-    </main>
+
+        {/* End of Content Indicator */}
+        {activeTab === "posts" && posts.length > 0 && (
+          <div className="py-8 text-center text-neutral-600 text-sm">
+            End of profile
+          </div>
+        )}
+      </main>
+    </div>
   );
 };
 

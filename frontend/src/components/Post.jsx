@@ -8,39 +8,46 @@ import {
   Smile,
   BarChart2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-
+import axios from "axios";
 dayjs.extend(relativeTime);
 
-const Post = ({ post }) => {
-  // const [loading, setLoading] = useState(false);
-  // const [liked, setLiked] = useState(likes.some((u) => u._id === userId));
-  // const [likesCount, setLikesCount] = useState(likes.length);
+const Post = ({ post, userId }) => {
+  const [loading, setLoading] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(post.likes?.length);
 
-  // const handleLike = async () => {
-  //   if (loading) return;
-  //   setLikesCount((prev) => (liked ? prev - 1 : prev + 1));
-  //   setLiked((prev) => !prev);
-  //   setLoading(true);
-  //   try {
-  //     const res = await axios.post(
-  //       `http://localhost:3000/posts/${postId}/like`,
-  //       {},
-  //       { withCredentials: true },
-  //     );
-  //     const { likesCount, liked } = res.data;
-  //     setLikesCount(likesCount);
-  //     setLiked(liked);
-  //     console.log(res.data);
-  //   } catch (error) {
-  //     console.error("Error liking post:", error);
-  //   } finally {
-  //     setLoading(false);
-  //     console.log(likes);
-  //   }
-  // };
+  const handleLike = async () => {
+    if (loading) return;
+    setLikesCount((prev) => (liked ? prev - 1 : prev + 1));
+    setLiked((prev) => !prev);
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `http://localhost:3000/posts/${post._id}/like`,
+        {},
+        { withCredentials: true },
+      );
+      const { likesCount, liked } = res.data;
+      setLikesCount(likesCount);
+      setLiked(liked);
+      console.log(res.data);
+    } catch (error) {
+      console.error("Error liking post:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  console.log("likes:", post.likes);
+  console.log("userId:", userId);
+  useEffect(() => {
+    if (userId) {
+      setLiked(post.likes.some((u) => (u._id || u) === userId));
+    }
+  }, [post.likes, userId]);
 
   return (
     <article
@@ -69,7 +76,9 @@ const Post = ({ post }) => {
                 {post.author.username}
               </span>
               <span className="text-neutral-600 text-[10px]">•</span>
-              <span className="text-neutral-500 text-sm">{dayjs(post.createdAt).fromNow()}</span>
+              <span className="text-neutral-500 text-sm">
+                {dayjs(post.createdAt).fromNow()}
+              </span>
             </div>
             <button className="text-neutral-500 hover:text-white transition-colors">
               <MoreHorizontal size={16} />
@@ -108,11 +117,17 @@ const Post = ({ post }) => {
               <span className="text-xs">{post.comments?.length || 0}</span>
             </button>
 
-            <button className="flex items-center gap-2 group hover:text-pink-500 transition-colors">
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-2 group hover:text-pink-500 transition-colors"
+            >
               <div className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
-                <Heart size={18} />
+                <Heart
+                  className={`transition-colors ${liked ? "text-pink-500 fill-pink-500" : "text-neutral-500"}`}
+                  size={18}
+                />
               </div>
-              <span className="text-xs">{post.likes?.length || 0}</span>
+              <span className="text-xs">{likesCount}</span>
             </button>
 
             <button className="flex items-center gap-2 group hover:text-blue-400 transition-colors">

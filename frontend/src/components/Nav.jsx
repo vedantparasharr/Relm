@@ -29,9 +29,9 @@ const Nav = () => {
 
   const handleLogout = async () => {
     await axios.post(
-      "http://localhost:3000/logout",
+      "http://localhost:3000/auth/signout",
       {},
-      { withCredentials: true }
+      { withCredentials: true },
     );
     window.location.href = "/login";
   };
@@ -39,8 +39,10 @@ const Nav = () => {
   return (
     <nav className="sticky top-0 z-50 border-b border-neutral-900 bg-black/80 backdrop-blur-md">
       <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-        <img className="h-8" src="/logo-dark.png" alt="Logo" />
-
+        <Link to={"/home"}>
+          {" "}
+          <img className="h-14" src="/logo-dark.png" alt="Logo" />
+        </Link>
         <div className="flex gap-4 text-sm font-medium text-neutral-400">
           <button className="text-white">For You</button>
           <button>Following</button>

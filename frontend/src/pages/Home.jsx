@@ -15,6 +15,7 @@ import Post from "../components/Post";
 
 const Home = () => {
   const [profilePicture, setProfilePicture] = useState("/default-avatar.png");
+  const [userId, setUserId] = useState(null);
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -27,6 +28,7 @@ const Home = () => {
         const { user } = res.data;
 
         setProfilePicture(user.image);
+        setUserId(user._id);
       } catch (err) {
         console.error(err);
       }
@@ -43,8 +45,6 @@ const Home = () => {
         });
 
         const { posts } = res.data;
-
-        console.log(posts);
         setPosts(posts);
       } catch (err) {
         console.error(err);
@@ -53,47 +53,6 @@ const Home = () => {
 
     fetchPosts();
   }, []);
-
-  const post2 = [
-    {
-      id: 1,
-      user: "Alex Rivera",
-      handle: "@arivera",
-      time: "2h",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-      content:
-        "Just shipped the new dark mode update. It's not just about inverting colors; it's about managing contrast ratios and elevation. 🌙✨ #DesignSystem #UX",
-      likes: 124,
-      comments: 18,
-      shares: 12,
-    },
-    {
-      id: 2,
-      user: "Sarah Chen",
-      handle: "@schen_dev",
-      time: "4h",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-      content:
-        "Clean code is not just about functionality, it's about readability. If you can't read it like a sentence, rewrite it.",
-      image:
-        "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1000&q=80",
-      likes: 856,
-      comments: 42,
-      shares: 89,
-    },
-    {
-      id: 3,
-      user: "Jordan Lee",
-      handle: "@jlee_arch",
-      time: "6h",
-      avatar: "https://i.pravatar.cc/150?u=a04258114e29026302d",
-      content:
-        "Minimalism isn't about having less. It's about making room for more of what matters.",
-      likes: 2.15,
-      comments: 140,
-      shares: 320,
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
@@ -138,7 +97,7 @@ const Home = () => {
         {/* Feed Stream */}
         <div className="flex flex-col gap-4">
           {posts.map((post) => (
-            <Post key={post._id} post={post} />
+            <Post key={post._id} post={post} userId={userId} />
           ))}
         </div>
 

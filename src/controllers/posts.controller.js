@@ -28,7 +28,7 @@ const renderPost = async (req, res) => {
     .populate("comments.author");
 
   const user = await userModel.findById(req.user.userId);
-  res.render("postDetail", { post, user, dayjs });
+  res.json({ post, user });
 };
 
 // ======================

@@ -5,6 +5,7 @@ import Signin from "./pages/Signin";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Home from "./pages/Home";
+import Post from "./pages/Post";
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
       <Route path="/profile" element={<Profile />}></Route>
       <Route path="/profile/settings" element={<Settings />}></Route>
       <Route path="/home" element={<Home />}></Route>
+      <Route path="/post/:id" element={<Post />}></Route>
     </Routes>
   );
 };

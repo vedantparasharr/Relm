@@ -44,7 +44,7 @@ const Nav = () => {
           <img className="h-14" src="/logo-dark.png" alt="Logo" />
         </Link>
         <div className="flex gap-4 text-sm font-medium text-neutral-400">
-          <button className="text-white">For You</button>
+          <Link to={"/home"} className="text-white">For You</Link>
           <button>Following</button>
         </div>
 

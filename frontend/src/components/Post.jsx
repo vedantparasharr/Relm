@@ -14,6 +14,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import axios from "axios";
 dayjs.extend(relativeTime);
 
+import { Link } from "react-router-dom";
+
 const Post = ({ post, userId }) => {
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -86,20 +88,22 @@ const Post = ({ post, userId }) => {
           </div>
 
           {/* Body Text */}
-          <p className="text-neutral-200 text-[15px] leading-relaxed mb-3 whitespace-pre-wrap">
-            {post.content}
-          </p>
+          <Link to={`/post/${post._id}`} className="block cursor-pointer">
+            <p className="text-neutral-200 text-[15px] leading-relaxed mb-3 whitespace-pre-wrap">
+              {post.content}
+            </p>
 
-          {/* Optional Image Attachment */}
-          {post.image && (
-            <div className="mb-3 rounded-lg overflow-hidden border border-neutral-800">
-              <img
-                src={post.image}
-                alt="Post content"
-                className="w-full h-auto object-cover"
-              />
-            </div>
-          )}
+            {/* Optional Image Attachment */}
+            {post.image && (
+              <div className="mb-3 rounded-lg overflow-hidden border border-neutral-800">
+                <img
+                  src={post.image}
+                  alt="Post content"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            )}
+          </Link>
 
           {/* Action Bar */}
           <div className="flex items-center justify-between text-neutral-500 max-w-md mt-2">

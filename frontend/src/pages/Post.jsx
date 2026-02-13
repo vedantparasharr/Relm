@@ -62,12 +62,11 @@ const Post = () => {
     setSubmittingComment(true);
     try {
       await axios.post(
-        `http://localhost:3000/posts/${id}/comment`,
+        `http://localhost:3000/posts/${id}/comments`,
         { content: commentText },
         { withCredentials: true },
       );
       setCommentText("");
-      // Refresh the post to show the new comment
       fetchPost();
     } catch (err) {
       console.error("Error posting comment:", err);

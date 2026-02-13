@@ -8,18 +8,35 @@ import {
   Smile,
   BarChart2,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import axios from "axios";
 dayjs.extend(relativeTime);
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const Post = ({ post, userId }) => {
+const Post = ({ post, userId, setPosts }) => {
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes?.length);
+  const [open, setOpen] = useState(false);
+
+  const menuRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  }, []);
 
   const handleLike = async () => {
     if (loading) return;
@@ -40,6 +57,17 @@ const Post = ({ post, userId }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async () => {
+    await axios.post(
+      `http://localhost:3000/posts/${post._id}/delete`,
+      {},
+      {
+        withCredentials: true,
+      },
+    );
+    setPosts((prev) => prev.filter((p) => p._id !== post._id));
   };
 
   useEffect(() => {
@@ -79,9 +107,33 @@ const Post = ({ post, userId }) => {
                 {dayjs(post.createdAt).fromNow()}
               </span>
             </div>
-            <button className="text-neutral-500 hover:text-white transition-colors">
-              <MoreHorizontal size={16} />
-            </button>
+            <div ref={menuRef} className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpen((prev) => !prev);
+                }}
+                className="text-neutral-500 hover:text-white transition-colors"
+              >
+                <MoreHorizontal size={16} />
+              </button>
+
+              {open && (
+                <div className="overflow-hidden absolute right-0 mt-2 rounded-xl border border-neutral-800 bg-black shadow-xl">
+                  {post.author._id === userId && (
+                    <button
+                      onClick={handleDelete}
+                      className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-neutral-900"
+                    >
+                      Delete
+                    </button>
+                  )}
+                  <p className="w-full text-left px-4 py-2 text-sm text-neutral-400 hover:bg-neutral-900">
+                    Soon
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Body Text */}

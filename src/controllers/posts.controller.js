@@ -49,13 +49,12 @@ const renderEdit = async (req, res) => {
 // Handle New Post Creation
 // ======================
 const handlePost = async (req, res) => {
-  const { title, content } = req.body;
+  const { content } = req.body;
   const user = await userModel.findById(req.user.userId);
 
   try {
     const newPost = await postModel.create({
       author: user._id,
-      title: title.trim(),
       content: content.trim(),
     });
 
@@ -63,8 +62,9 @@ const handlePost = async (req, res) => {
       $push: { posts: newPost._id },
     });
 
-    res.redirect("/profile");
+    res.json("Done");
   } catch (error) {
+    console.log(error);
     res.status(500).send("Error creating post");
   }
 };
@@ -73,16 +73,20 @@ const handlePost = async (req, res) => {
 // Handle Comment Creation
 // ======================
 const handleComment = async (req, res) => {
-  const { content } = req.body;
-  const post = await postModel.findById(req.params.id);
+  try {
+    const { content } = req.body;
+    const post = await postModel.findById(req.params.id);
 
-  post.comments.push({
-    author: req.user.userId,
-    content,
-  });
+    post.comments.push({
+      author: req.user.userId,
+      content,
+    });
 
-  await post.save();
-  res.redirect(`/posts/${post._id}`);
+    await post.save();
+    res.json("Done");
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // ======================

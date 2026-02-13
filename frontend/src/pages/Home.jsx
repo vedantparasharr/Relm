@@ -16,7 +16,9 @@ import Post from "../components/Post";
 const Home = () => {
   const [profilePicture, setProfilePicture] = useState("/default-avatar.png");
   const [userId, setUserId] = useState(null);
+  const [username, setUsername] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [content, setContent] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -26,9 +28,9 @@ const Home = () => {
         });
 
         const { user } = res.data;
-
         setProfilePicture(user.image);
         setUserId(user._id);
+        setUsername(user.username);
       } catch (err) {
         console.error(err);
       }
@@ -37,22 +39,37 @@ const Home = () => {
     fetchProfile();
   }, []);
 
+  const fetchPosts = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/home", {
+        withCredentials: true,
+      });
+
+      const { posts } = res.data;
+      setPosts(posts);
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await axios.get("http://localhost:3000/home", {
-          withCredentials: true,
-        });
-
-        const { posts } = res.data;
-        setPosts(posts);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
     fetchPosts();
   }, []);
+
+  const handlePost = async () => {
+    try {
+      await axios.post(
+        "http://localhost:3000/posts/",
+        { content: content },
+        { withCredentials: true },
+      );
+      setContent("");
+      fetchPosts();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
@@ -71,6 +88,8 @@ const Home = () => {
             <div className="flex-1">
               <input
                 type="text"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
                 placeholder="What's on your mind?"
                 className="w-full bg-transparent text-lg placeholder-neutral-500 focus:outline-none text-white mb-4"
               />
@@ -86,7 +105,10 @@ const Home = () => {
                     <Smile size={18} />
                   </button>
                 </div>
-                <button className="px-4 py-1.5 bg-white text-black font-semibold rounded-full text-sm hover:bg-neutral-200 transition-colors">
+                <button
+                  onClick={handlePost}
+                  className="px-4 py-1.5 bg-white text-black font-semibold rounded-full text-sm hover:bg-neutral-200 transition-colors"
+                >
                   Post
                 </button>
               </div>
@@ -97,7 +119,7 @@ const Home = () => {
         {/* Feed Stream */}
         <div className="flex flex-col gap-4">
           {posts.map((post) => (
-            <Post key={post._id} post={post} userId={userId} />
+            <Post key={post._id} post={post} userId={userId} setPosts={setPosts} />
           ))}
         </div>
 

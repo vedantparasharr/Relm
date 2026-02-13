@@ -25,7 +25,6 @@ const postSchema = mongoose.Schema(
     },
     title: {
       type: String,
-      required: true,
       maxLength: 120,
       trim: true,
     },

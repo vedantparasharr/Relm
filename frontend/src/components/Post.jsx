@@ -35,7 +35,6 @@ const Post = ({ post, userId }) => {
       const { likesCount, liked } = res.data;
       setLikesCount(likesCount);
       setLiked(liked);
-      console.log(res.data);
     } catch (error) {
       console.error("Error liking post:", error);
     } finally {
@@ -43,8 +42,6 @@ const Post = ({ post, userId }) => {
     }
   };
 
-  console.log("likes:", post.likes);
-  console.log("userId:", userId);
   useEffect(() => {
     if (userId) {
       setLiked(post.likes.some((u) => (u._id || u) === userId));

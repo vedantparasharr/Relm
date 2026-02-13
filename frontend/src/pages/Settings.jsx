@@ -98,9 +98,7 @@ const Settings = () => {
           },
         },
       );
-
-      console.log(res.data);
-
+      
       // Update display values only after successful save
       setDisplayName(res.data.user.name);
       setDisplayUsername(res.data.user.username);

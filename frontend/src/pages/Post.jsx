@@ -42,7 +42,7 @@ const Post = () => {
       const res = await axios.get(`http://localhost:3000/posts/${id}`, {
         withCredentials: true,
       });
-      setPost(res.data);
+      setPost(res.data.post);
     } catch (err) {
       console.error("Error fetching post:", err);
     } finally {

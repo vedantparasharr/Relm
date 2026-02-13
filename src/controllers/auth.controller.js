@@ -77,7 +77,7 @@ const handleSignup = async (req, res) => {
   // Trigger email verification
   if (!user.verified) {
     sendOTPEmail(user).catch(console.error);
-    return res.render("verify", { user: user._id });
+    return res.status(201).json({ next: "verify", userId: user._id });
   }
 };
 
@@ -109,7 +109,7 @@ const handleVerifyEmail = async (req, res) => {
     const token = jwt.sign(
       { email: user.email, userId: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: "30d" }
+      { expiresIn: "30d" },
     );
 
     res.cookie("token", token, {
@@ -119,7 +119,9 @@ const handleVerifyEmail = async (req, res) => {
       sameSite: "lax",
     });
 
-    return res.redirect("/home");
+    return res
+      .status(200)
+      .json({ message: "Verification successful", next: "home" });
   }
 
   // Password reset flow
@@ -176,7 +178,7 @@ const handleSignin = async (req, res) => {
   const token = jwt.sign(
     { email: email, userId: user._id },
     process.env.JWT_SECRET,
-    { expiresIn }
+    { expiresIn },
   );
 
   res.cookie("token", token, {
@@ -186,7 +188,6 @@ const handleSignin = async (req, res) => {
     sameSite: "lax",
   });
   res.json();
-  res.redirect("/profile");
 };
 
 // ======================

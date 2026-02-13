@@ -139,7 +139,17 @@ const Post = ({ post, userId, setPosts }) => {
           {/* Body Text */}
           <Link to={`/post/${post._id}`} className="block cursor-pointer">
             <p className="text-neutral-200 text-[15px] leading-relaxed mb-3 whitespace-pre-wrap">
-              {post.content}
+              {post.content.length > 100 ? (
+                <>
+                  {post.content.slice(0, 100)}
+                  {"... "}
+                  <span className="ml-1 text-center px-2 py-0.5 text-xs rounded-full bg-neutral-800 text-neutral-400">
+                    more
+                  </span>
+                </>
+              ) : (
+                post.content
+              )}
             </p>
 
             {/* Optional Image Attachment */}

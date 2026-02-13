@@ -44,8 +44,12 @@ const renderReset = async (req, res) => {
 // Handle Signout
 // ======================
 const handleSignout = (req, res) => {
-  res.clearCookie("token");
-  res.redirect("/");
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+  });
+  res.json();
 };
 
 // ======================

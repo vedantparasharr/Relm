@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
@@ -27,13 +27,15 @@ const Nav = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const navigate = useNavigate();
   const handleLogout = async () => {
-    await axios.post(
-      "http://localhost:3000/auth/signout",
-      {},
-      { withCredentials: true },
-    );
-    window.location.href = "/login";
+    try {
+      await axios.get("/auth/signout", {}, { withCredentials: true });
+
+      navigate("/signin");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -44,7 +46,9 @@ const Nav = () => {
           <img className="h-14" src="/logo-dark.png" alt="Logo" />
         </Link>
         <div className="flex gap-4 text-sm font-medium text-neutral-400">
-          <Link to={"/home"} className="text-white">For You</Link>
+          <Link to={"/home"} className="text-white">
+            For You
+          </Link>
           <button>Following</button>
         </div>
 

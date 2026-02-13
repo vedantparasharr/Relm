@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Eye, EyeOff, ArrowRight, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Loader2,
+  Sparkles,
+  CheckCircle2,
+} from "lucide-react";
 
 const Auth = () => {
   // View states: 'login' | 'register' | 'verify'
@@ -10,9 +17,9 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   // Data states
-  const [userId, setUserId] = useState(null); // Stores ID for verification step
+  const [userId, setUserId] = useState(null);
   const [otp, setOtp] = useState("");
-  
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -32,29 +39,30 @@ const Auth = () => {
 
     try {
       let res;
-
-      // --- FLOW 1: VERIFICATION ---
       if (view === "verify") {
-        res = await axios.post("http://localhost:3000/auth/verify-email", {
-          userId: userId,
-          code: otp
-        }, { withCredentials: true });
+        res = await axios.post(
+          "http://localhost:3000/auth/verify-email",
+          {
+            userId: userId,
+            code: otp,
+          },
+          { withCredentials: true },
+        );
 
         if (res.status === 200) {
-           window.location.href = "/home";
-           return;
+          window.location.href = "/home";
+          return;
         }
-      } 
-      
-      // --- FLOW 2: LOGIN & REGISTER ---
-      else {
-        const endpoint = view === "login" 
-          ? "http://localhost:3000/auth/signin" 
-          : "http://localhost:3000/auth/signup";
-        
-        const payload = view === "login"
-          ? { email: formData.email, password: formData.password }
-          : formData;
+      } else {
+        const endpoint =
+          view === "login"
+            ? "http://localhost:3000/auth/signin"
+            : "http://localhost:3000/auth/signup";
+
+        const payload =
+          view === "login"
+            ? { email: formData.email, password: formData.password }
+            : formData;
 
         res = await axios.post(endpoint, payload, { withCredentials: true });
 
@@ -66,13 +74,12 @@ const Auth = () => {
           window.location.href = "/home";
         }
       }
-
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message || 
-        err.response?.data || 
-        "Something went wrong. Please try again."
+        err.response?.data?.message ||
+          err.response?.data ||
+          "Something went wrong. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -82,7 +89,6 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        
         {/* Header Section */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(255,255,255,0.3)]">
@@ -99,7 +105,8 @@ const Auth = () => {
           </h1>
           <p className="text-neutral-500 mt-2 text-sm text-center">
             {view === "login" && "Enter your details to access your feed."}
-            {view === "register" && "Join the community and share your thoughts."}
+            {view === "register" &&
+              "Join the community and share your thoughts."}
             {view === "verify" && `We've sent a code to ${formData.email}.`}
           </p>
         </div>
@@ -107,7 +114,6 @@ const Auth = () => {
         {/* Main Form Card */}
         <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6 sm:p-8 backdrop-blur-sm shadow-xl">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            
             {/* --- VERIFICATION VIEW --- */}
             {view === "verify" && (
               <div className="space-y-1">
@@ -132,7 +138,9 @@ const Auth = () => {
                 {view === "register" && (
                   <>
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-neutral-400 ml-1">Full Name</label>
+                      <label className="text-xs font-medium text-neutral-400 ml-1">
+                        Full Name
+                      </label>
                       <input
                         type="text"
                         name="name"
@@ -143,7 +151,9 @@ const Auth = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-neutral-400 ml-1">Username</label>
+                      <label className="text-xs font-medium text-neutral-400 ml-1">
+                        Username
+                      </label>
                       <input
                         type="text"
                         name="username"
@@ -158,7 +168,9 @@ const Auth = () => {
 
                 {/* Common Fields */}
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-neutral-400 ml-1">Email</label>
+                  <label className="text-xs font-medium text-neutral-400 ml-1">
+                    Email
+                  </label>
                   <input
                     type="email"
                     name="email"
@@ -171,7 +183,9 @@ const Auth = () => {
                 </div>
 
                 <div className="space-y-1 relative">
-                  <label className="text-xs font-medium text-neutral-400 ml-1">Password</label>
+                  <label className="text-xs font-medium text-neutral-400 ml-1">
+                    Password
+                  </label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
@@ -211,10 +225,10 @@ const Auth = () => {
                 <Loader2 size={20} className="animate-spin" />
               ) : (
                 <>
-                   {view === "login" && "Sign In"}
-                   {view === "register" && "Create Account"}
-                   {view === "verify" && "Verify Email"}
-                   <ArrowRight size={18} />
+                  {view === "login" && "Sign In"}
+                  {view === "register" && "Create Account"}
+                  {view === "verify" && "Verify Email"}
+                  <ArrowRight size={18} />
                 </>
               )}
             </button>
@@ -224,20 +238,27 @@ const Auth = () => {
         {/* Footer / Toggle */}
         <div className="mt-8 text-center text-sm text-neutral-500">
           {view === "verify" ? (
-             <button
-             onClick={() => setView("login")}
-             className="text-white font-medium hover:underline focus:outline-none"
-           >
-             ← Back to Login
-           </button>
+            <button
+              onClick={() => setView("login")}
+              className="text-white font-medium hover:underline focus:outline-none"
+            >
+              ← Back to Login
+            </button>
           ) : (
             <>
-              {view === "login" ? "Don't have an account? " : "Already have an account? "}
+              {view === "login"
+                ? "Don't have an account? "
+                : "Already have an account? "}
               <button
                 onClick={() => {
                   setView(view === "login" ? "register" : "login");
                   setError("");
-                  setFormData({ email: "", password: "", username: "", name: "" });
+                  setFormData({
+                    email: "",
+                    password: "",
+                    username: "",
+                    name: "",
+                  });
                 }}
                 className="text-white font-medium hover:underline focus:outline-none"
               >

@@ -1,90 +1,70 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import {
-  Heart,
-  MessageCircle,
-  Share2,
-  MoreHorizontal,
-  Image,
-  Smile,
-  BarChart2,
-} from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Image, Smile, BarChart2 } from "lucide-react";
 
 import Nav from "../components/Nav";
-import Post from "../components/Post";
+import PostCard from "../components/PostCard";
+import { getProfile, getPosts, createPost } from "../services/homeService";
 
 const Home = () => {
-  const [profilePicture, setProfilePicture] = useState("/default-avatar.png");
-  const [userId, setUserId] = useState(null);
-  const [username, setUsername] = useState(null);
+  const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [content, setContent] = useState("");
 
+  // Fetch logged-in user information
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/profile", {
-          withCredentials: true,
-        });
-
-        const { user } = res.data;
-        setProfilePicture(user.image);
-        setUserId(user._id);
-        setUsername(user.username);
+        const res = await getProfile();
+        setUser(res.data.user);
       } catch (err) {
         console.error(err);
       }
     };
 
-    fetchProfile();
+    fetchUser();
   }, []);
 
-  const fetchPosts = async () => {
+  // Fetch feed posts
+  const fetchPosts = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:3000/home", {
-        withCredentials: true,
-      });
+      const res = await getPosts();
+      setPosts(res.data.posts);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
-      const { posts } = res.data;
-      setPosts(posts);
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
+  // Create a new post and refresh feed
+  const handlePost = async () => {
+    if (!content.trim()) return;
+
+    try {
+      await createPost(content);
+      setContent("");
+      fetchPosts();
     } catch (err) {
       console.error(err);
     }
   };
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  const handlePost = async () => {
-    try {
-      await axios.post(
-        "http://localhost:3000/posts/",
-        { content: content },
-        { withCredentials: true },
-      );
-      setContent("");
-      fetchPosts();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
-      {/* Top Navigation Bar */}
-      <Nav></Nav>
+      <Nav />
 
       <main className="max-w-2xl mx-auto pt-4 pb-20 px-0 sm:px-4">
-        {/* Create Post Card */}
+        {/* Create post input */}
         <div className="mb-6 px-4 py-4 sm:rounded-xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-colors duration-200">
           <div className="flex gap-4">
             <img
-              src={profilePicture}
+              src={user?.image || "/default-avatar.png"}
               alt="My Avatar"
               className="w-10 h-10 rounded-full object-cover border border-neutral-800"
             />
+
             <div className="flex-1">
               <input
                 type="text"
@@ -93,6 +73,7 @@ const Home = () => {
                 placeholder="What's on your mind?"
                 className="w-full bg-transparent text-lg placeholder-neutral-500 focus:outline-none text-white mb-4"
               />
+
               <div className="flex items-center justify-between border-t border-neutral-800 pt-3">
                 <div className="flex gap-4 text-neutral-500">
                   <button className="hover:text-blue-400 transition-colors">
@@ -105,6 +86,7 @@ const Home = () => {
                     <Smile size={18} />
                   </button>
                 </div>
+
                 <button
                   onClick={handlePost}
                   className="px-4 py-1.5 bg-white text-black font-semibold rounded-full text-sm hover:bg-neutral-200 transition-colors"
@@ -116,14 +98,18 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Feed Stream */}
+        {/* Feed */}
         <div className="flex flex-col gap-4">
           {posts.map((post) => (
-            <Post key={post._id} post={post} userId={userId} setPosts={setPosts} />
+            <PostCard
+              key={post._id}
+              post={post}
+              userId={user?._id}
+              setPosts={setPosts}
+            />
           ))}
         </div>
 
-        {/* Loading / End of Feed Indicator */}
         <div className="py-8 text-center text-neutral-600 text-sm">
           You're all caught up
         </div>

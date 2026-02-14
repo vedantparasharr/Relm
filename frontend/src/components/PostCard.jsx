@@ -16,12 +16,12 @@ dayjs.extend(relativeTime);
 
 import { Link, useNavigate } from "react-router-dom";
 
-const Post = ({ post, userId, setPosts }) => {
+const Post = ({ post, userId, setPosts, fullPost = false }) => {
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes?.length);
   const [open, setOpen] = useState(false);
-
+  const ContentWrapper = fullPost ? "div" : Link;
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -100,7 +100,7 @@ const Post = ({ post, userId, setPosts }) => {
                 {post.author.name}
               </span>
               <span className="text-neutral-500 text-sm truncate">
-                {post.author.username}
+               @{post.author.username}
               </span>
               <span className="text-neutral-600 text-[10px]">•</span>
               <span className="text-neutral-500 text-sm">
@@ -137,9 +137,9 @@ const Post = ({ post, userId, setPosts }) => {
           </div>
 
           {/* Body Text */}
-          <Link to={`/post/${post._id}`} className="block cursor-pointer">
+          <ContentWrapper to={`/post/${post._id}`} className="block cursor-pointer">
             <p className="text-neutral-200 text-[15px] leading-relaxed mb-3 whitespace-pre-wrap">
-              {post.content.length > 100 ? (
+              {fullPost? (post.content) : post.content.length > 100 ? (
                 <>
                   {post.content.slice(0, 100)}
                   {"... "}
@@ -162,7 +162,7 @@ const Post = ({ post, userId, setPosts }) => {
                 />
               </div>
             )}
-          </Link>
+          </ContentWrapper>
 
           {/* Action Bar */}
           <div className="flex items-center justify-between text-neutral-500 max-w-md mt-2">

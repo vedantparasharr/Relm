@@ -7,7 +7,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 
 // Import your existing components
 import Nav from "../components/Nav";
-import PostCard from "../components/Post"; // Renamed import to avoid conflict
+import PostCard from "../components/PostCard";
 
 dayjs.extend(relativeTime);
 
@@ -115,7 +115,7 @@ const Post = () => {
 
         {/* Main Post Component */}
         <div className="mb-6">
-          <PostCard post={post} userId={currentUser?._id} />
+          <PostCard post={post} userId={currentUser?._id} fullPost />
         </div>
 
         {/* Comment Input Section */}

@@ -30,8 +30,9 @@ const Nav = () => {
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
-      await axios.get("/auth/signout", {}, { withCredentials: true });
-
+      await axios.get("http://localhost:3000/auth/signout", {
+        withCredentials: true,
+      });
       navigate("/signin");
     } catch (err) {
       console.error(err);

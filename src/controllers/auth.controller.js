@@ -46,10 +46,11 @@ const renderReset = async (req, res) => {
 const handleSignout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
   });
-  res.json();
+
+  res.status(200).json({ message: "Logged out" });
 };
 
 // ======================

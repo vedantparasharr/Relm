@@ -78,7 +78,14 @@ const Profile = () => {
           {activeTab === "posts" && (
             <>
               {posts.length > 0 ? (
-                posts.map((post) => <Post key={post._id} post={post} userId={userId} setPosts={setPosts} />)
+                posts.map((post) => (
+                  <Post
+                    key={post._id}
+                    post={post}
+                    userId={userId}
+                    setPosts={setPosts}
+                  />
+                ))
               ) : (
                 <div className="py-8 text-center text-neutral-600 text-sm">
                   No posts yet.

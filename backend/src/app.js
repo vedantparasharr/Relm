@@ -27,7 +27,7 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://relm-three.vercel.app"],
+    origin: ["http://localhost:5173", "https://relm-zzse.onrender.com/"],
     credentials: true,
   }),
 );

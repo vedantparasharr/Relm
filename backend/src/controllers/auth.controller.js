@@ -44,10 +44,12 @@ const renderReset = async (req, res) => {
 // Handle Signout
 // ======================
 const handleSignout = (req, res) => {
+  const isProd = process.env.NODE_ENV === "production";
+
   res.clearCookie("token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
   });
 
   res.status(200).json({ message: "Logged out" });
@@ -117,11 +119,13 @@ const handleVerifyEmail = async (req, res) => {
       { expiresIn: "30d" },
     );
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      maxAge,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
     });
 
     return res
@@ -148,11 +152,13 @@ const handleGuest = async (req, res) => {
     expiresIn: "1h",
   });
 
+  const isProd = process.env.NODE_ENV === "production";
+
   res.cookie("token", token, {
     httpOnly: true,
-    maxAge: 60 * 60 * 1000,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    maxAge,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
   });
 
   res.redirect("/home");
@@ -186,12 +192,15 @@ const handleSignin = async (req, res) => {
     { expiresIn },
   );
 
+  const isProd = process.env.NODE_ENV === "production";
+
   res.cookie("token", token, {
     httpOnly: true,
     maxAge,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
   });
+
   res.json();
 };
 

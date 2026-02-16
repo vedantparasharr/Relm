@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 import Nav from "../components/Nav";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Settings = () => {
   /* ----------------------------- ROUTER ----------------------------- */
   const navigate = useNavigate();
@@ -37,7 +39,7 @@ const Settings = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/profile", {
+        const res = await axios.get(`${API_URL}/profile`, {
           withCredentials: true,
         });
         setUser(res.data.user);
@@ -97,7 +99,7 @@ const Settings = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:3000/profile/settings",
+        `${API_URL}/profile/settings`,
         formData,
         {
           withCredentials: true,
@@ -210,7 +212,11 @@ const Settings = () => {
           {/* Name + Username */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField label="Full name" value={name} onChange={setName} />
-            <InputField label="Username" value={username} onChange={setUsername} />
+            <InputField
+              label="Username"
+              value={username}
+              onChange={setUsername}
+            />
           </div>
 
           {/* Email + DOB */}
@@ -249,7 +255,9 @@ const Settings = () => {
               maxLength={120}
               className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 resize-none outline-none focus:border-blue-400 transition"
             />
-            <p className="text-xs text-zinc-500 text-right">{bio.length} / 120</p>
+            <p className="text-xs text-zinc-500 text-right">
+              {bio.length} / 120
+            </p>
           </div>
 
           {/* Password */}

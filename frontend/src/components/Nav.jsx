@@ -10,11 +10,13 @@ const Nav = () => {
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   /* --------------------------- FETCH PROFILE ------------------------ */
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/profile", {
+        const res = await axios.get(`${API_URL}/profile`, {
           withCredentials: true,
         });
 
@@ -42,7 +44,7 @@ const Nav = () => {
   /* ------------------------------ ACTIONS --------------------------- */
   const handleLogout = async () => {
     try {
-      await axios.get("http://localhost:3000/auth/signout", {
+      await axios.get(`${API_URL}/auth/signout`, {
         withCredentials: true,
       });
 
@@ -56,7 +58,6 @@ const Nav = () => {
   return (
     <nav className="sticky top-0 z-50 border-b border-neutral-900 bg-black/80 backdrop-blur-md">
       <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-
         {/* Logo */}
         <Link to="/home">
           <img className="h-14" src="/logo-dark.png" alt="Logo" />

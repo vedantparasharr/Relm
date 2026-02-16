@@ -8,6 +8,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Nav from "../components/Nav";
 import PostCard from "../components/PostCard";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 dayjs.extend(relativeTime);
 
 const Post = () => {
@@ -26,7 +28,7 @@ const Post = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/profile", {
+        const res = await axios.get(`${API_URL}/profile`, {
           withCredentials: true,
         });
         setCurrentUser(res.data.user);
@@ -41,7 +43,7 @@ const Post = () => {
   /* --------------------------- FETCH POST --------------------------- */
   const fetchPost = useCallback(async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/posts/${id}`, {
+      const res = await axios.get(`${API_URL}/posts/${id}`, {
         withCredentials: true,
       });
       setPost(res.data.post);
@@ -65,7 +67,7 @@ const Post = () => {
 
     try {
       await axios.post(
-        `http://localhost:3000/posts/${id}/comments`,
+        `${API_URL}/posts/${id}/comments`,
         { content: commentText },
         { withCredentials: true },
       );

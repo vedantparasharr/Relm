@@ -60,7 +60,7 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
 
     try {
       const res = await axios.post(
-        `http://localhost:3000/posts/${post._id}/like`,
+        `${API_URL}/posts/${post._id}/like`,
         {},
         { withCredentials: true },
       );
@@ -76,7 +76,7 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
 
   const handleDelete = async () => {
     await axios.post(
-      `http://localhost:3000/posts/${post._id}/delete`,
+      `${API_URL}/posts/${post._id}/delete`,
       {},
       { withCredentials: true },
     );

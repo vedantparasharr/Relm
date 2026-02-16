@@ -6,6 +6,8 @@ import ProfileHeader from "../components/ProfileHeader";
 import About from "../components/About";
 import PostCard from "../components/PostCard";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Profile = () => {
   /* ----------------------------- STATE ----------------------------- */
   const [activeTab, setActiveTab] = useState("posts");
@@ -16,7 +18,7 @@ const Profile = () => {
   /* -------------------------- FETCH PROFILE ------------------------- */
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:3000/profile", {
+      const res = await axios.get(`${API_URL}/profile`, {
         withCredentials: true,
       });
 
@@ -40,9 +42,7 @@ const Profile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white font-sans flex items-center justify-center">
-        <div className="animate-pulse text-neutral-500">
-          Loading profile...
-        </div>
+        <div className="animate-pulse text-neutral-500">Loading profile...</div>
       </div>
     );
   }

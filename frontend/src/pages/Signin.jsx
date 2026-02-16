@@ -9,6 +9,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Auth = () => {
   /* ------------------------------ STATE ----------------------------- */
 
@@ -60,7 +62,7 @@ const Auth = () => {
       // ---------- VERIFY EMAIL ----------
       if (view === "verify") {
         res = await axios.post(
-          "http://localhost:3000/auth/verify-email",
+          `${API_URL}/auth/verify-email`,
           { userId, code: otp },
           { withCredentials: true },
         );
@@ -75,8 +77,8 @@ const Auth = () => {
       else {
         const endpoint =
           view === "login"
-            ? "http://localhost:3000/auth/signin"
-            : "http://localhost:3000/auth/signup";
+            ? `${API_URL}/auth/signin`
+            : `${API_URL}/auth/signup`;
 
         const payload =
           view === "login"

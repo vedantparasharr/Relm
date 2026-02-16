@@ -90,7 +90,6 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
   return (
     <article className="px-4 py-4 sm:rounded-xl bg-neutral-900/30 border border-neutral-800/60 hover:bg-neutral-900/50 transition-colors cursor-pointer">
       <div className="flex gap-4">
-
         {/* Avatar */}
         <div className="flex-shrink-0">
           <img
@@ -102,7 +101,6 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-
           {/* Header */}
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2 overflow-hidden">
@@ -142,7 +140,7 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
                   )}
 
                   <p className="w-full text-left px-4 py-2 text-sm text-neutral-400 hover:bg-neutral-900">
-                    Soon
+                    Upcoming options
                   </p>
                 </div>
               )}
@@ -184,19 +182,21 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
 
           {/* Action bar */}
           <div className="flex items-center justify-between text-neutral-500 max-w-md mt-2">
-
-            <button className="flex items-center gap-2 group hover:text-blue-400 transition-colors">
+            <ContentWrapper
+              to={`/post/${post._id}`}
+              className="flex items-center gap-2 group hover:text-blue-400 transition-colors"
+            >
               <div className="p-1.5 rounded-full group-hover:bg-blue-500/10 transition-colors">
                 <MessageCircle size={18} />
               </div>
               <span className="text-xs">{post.comments?.length}</span>
-            </button>
+            </ContentWrapper>
 
             <button className="flex items-center gap-2 group hover:text-green-400 transition-colors">
               <div className="p-1.5 rounded-full group-hover:bg-green-500/10 transition-colors">
                 <Share2 size={18} />
               </div>
-              <span className="text-xs">{post.comments?.length || 0}</span>
+              <span className="text-xs">{0}</span>
             </button>
 
             <button

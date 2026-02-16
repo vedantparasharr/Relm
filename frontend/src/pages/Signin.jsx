@@ -217,7 +217,7 @@ const Auth = () => {
                 </div>
               </>
             )}
-
+        
             {/* Error */}
             {error && (
               <div className="text-red-400 text-sm bg-red-900/10 border border-red-900/50 p-3 rounded-lg text-center animate-pulse">

@@ -206,7 +206,7 @@ const CommentItem = ({ comment }) => {
           <div className="flex items-center gap-6 mt-2 text-neutral-500">
             <button className="flex items-center gap-1.5 hover:text-blue-400 transition-colors">
               <MessageCircle size={14} />
-              <span className="text-xs">Reply</span>
+              <span className="text-xs">Reply(upcoming)</span>
             </button>
           </div>
         </div>

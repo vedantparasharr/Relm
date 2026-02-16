@@ -99,6 +99,7 @@ const Home = () => {
                   <button className="hover:text-blue-400 transition-colors">
                     <Smile size={18} />
                   </button>
+                  (Upcoming features){" "}
                 </div>
 
                 {/* Submit post */}

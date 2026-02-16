@@ -7,12 +7,13 @@ import About from "../components/About";
 import PostCard from "../components/PostCard";
 
 const Profile = () => {
+  /* ----------------------------- STATE ----------------------------- */
   const [activeTab, setActiveTab] = useState("posts");
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch profile data and user posts
+  /* -------------------------- FETCH PROFILE ------------------------- */
   const fetchProfile = useCallback(async () => {
     try {
       const res = await axios.get("http://localhost:3000/profile", {
@@ -23,17 +24,19 @@ const Profile = () => {
 
       setUser(user);
       setPosts(posts || []);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /* ------------------------------ EFFECTS --------------------------- */
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
 
+  /* ---------------------------- LOADING UI -------------------------- */
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white font-sans flex items-center justify-center">
@@ -44,6 +47,33 @@ const Profile = () => {
     );
   }
 
+  /* --------------------------- TAB CONTENT -------------------------- */
+  const renderPosts = () => {
+    if (!posts.length) {
+      return (
+        <div className="py-8 text-center text-neutral-600 text-sm">
+          No posts yet.
+        </div>
+      );
+    }
+
+    return posts.map((post) => (
+      <PostCard
+        key={post._id}
+        post={post}
+        userId={user?._id}
+        setPosts={setPosts}
+      />
+    ));
+  };
+
+  const renderAbout = () => (
+    <div className="px-4 py-6 sm:rounded-xl bg-neutral-900/50 border border-neutral-800">
+      <About user={user} postsCount={posts.length} />
+    </div>
+  );
+
+  /* ------------------------------- UI -------------------------------- */
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
       <Nav />
@@ -64,29 +94,11 @@ const Profile = () => {
 
         {/* Tab content */}
         <div className="flex flex-col gap-4">
-          {activeTab === "posts" &&
-            (posts.length > 0 ? (
-              posts.map((post) => (
-                <PostCard
-                  key={post._id}
-                  post={post}
-                  userId={user?._id}
-                  setPosts={setPosts}
-                />
-              ))
-            ) : (
-              <div className="py-8 text-center text-neutral-600 text-sm">
-                No posts yet.
-              </div>
-            ))}
-
-          {activeTab === "about" && (
-            <div className="px-4 py-6 sm:rounded-xl bg-neutral-900/50 border border-neutral-800">
-              <About user={user} postsCount={posts.length} />
-            </div>
-          )}
+          {activeTab === "posts" && renderPosts()}
+          {activeTab === "about" && renderAbout()}
         </div>
 
+        {/* Footer text */}
         {activeTab === "posts" && posts.length > 0 && (
           <div className="py-8 text-center text-neutral-600 text-sm">
             End of profile

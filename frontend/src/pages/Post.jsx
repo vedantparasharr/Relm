@@ -1,27 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ArrowLeft, Send, MessageCircle } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
-// Import your existing components
 import Nav from "../components/Nav";
 import PostCard from "../components/PostCard";
 
 dayjs.extend(relativeTime);
 
 const Post = () => {
+  /* ----------------------------- ROUTER ----------------------------- */
   const { id } = useParams();
   const navigate = useNavigate();
 
+  /* ------------------------------ STATE ----------------------------- */
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const [commentText, setCommentText] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
 
-  // 1. Fetch Current User (for the comment input avatar)
+  /* ------------------------- FETCH CURRENT USER --------------------- */
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -29,60 +30,65 @@ const Post = () => {
           withCredentials: true,
         });
         setCurrentUser(res.data.user);
-      } catch (err) {
-        console.error("Error fetching profile:", err);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
       }
     };
+
     fetchProfile();
   }, []);
 
-  // 2. Fetch The Specific Post
-  const fetchPost = async () => {
+  /* --------------------------- FETCH POST --------------------------- */
+  const fetchPost = useCallback(async () => {
     try {
       const res = await axios.get(`http://localhost:3000/posts/${id}`, {
         withCredentials: true,
       });
       setPost(res.data.post);
-    } catch (err) {
-      console.error("Error fetching post:", err);
+    } catch (error) {
+      console.error("Error fetching post:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchPost();
-  }, [id]);
+  }, [fetchPost]);
 
-  // 3. Handle New Comment Submission
+  /* ------------------------ SUBMIT COMMENT -------------------------- */
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
 
     setSubmittingComment(true);
+
     try {
       await axios.post(
         `http://localhost:3000/posts/${id}/comments`,
         { content: commentText },
         { withCredentials: true },
       );
+
       setCommentText("");
       fetchPost();
-    } catch (err) {
-      console.error("Error posting comment:", err);
+    } catch (error) {
+      console.error("Error posting comment:", error);
     } finally {
       setSubmittingComment(false);
     }
   };
 
+  /* ---------------------------- LOADING UI -------------------------- */
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
       </div>
     );
   }
 
+  /* --------------------------- NOT FOUND UI ------------------------- */
   if (!post) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-4">
@@ -97,12 +103,13 @@ const Post = () => {
     );
   }
 
+  /* ------------------------------- UI ------------------------------- */
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
       <Nav />
 
       <main className="max-w-2xl mx-auto pt-4 pb-20 px-0 sm:px-4">
-        {/* Header with Back Button */}
+        {/* Header */}
         <div className="flex items-center gap-4 px-4 mb-4">
           <button
             onClick={() => navigate(-1)}
@@ -113,12 +120,12 @@ const Post = () => {
           <h2 className="text-xl font-bold">Post</h2>
         </div>
 
-        {/* Main Post Component */}
+        {/* Main post */}
         <div className="mb-6">
           <PostCard post={post} userId={currentUser?._id} fullPost />
         </div>
 
-        {/* Comment Input Section */}
+        {/* Comment input */}
         <div className="border-t border-neutral-800 px-4 py-4 mb-2">
           <div className="flex gap-4">
             <img
@@ -126,6 +133,7 @@ const Post = () => {
               alt="Current User"
               className="w-10 h-10 rounded-full object-cover border border-neutral-800"
             />
+
             <form onSubmit={handleCommentSubmit} className="flex-1">
               <div className="relative">
                 <input
@@ -135,6 +143,7 @@ const Post = () => {
                   placeholder="Post your reply"
                   className="w-full bg-neutral-900/50 text-white rounded-full py-3 px-4 pr-12 border border-neutral-800 focus:border-blue-500/50 focus:outline-none focus:bg-black transition-colors placeholder-neutral-500"
                 />
+
                 <button
                   type="submit"
                   disabled={!commentText.trim() || submittingComment}
@@ -147,7 +156,7 @@ const Post = () => {
           </div>
         </div>
 
-        {/* Comments List */}
+        {/* Comments list */}
         <div className="flex flex-col">
           {post.comments && post.comments.length > 0 ? (
             post.comments.map((comment, index) => (
@@ -164,18 +173,17 @@ const Post = () => {
   );
 };
 
-// Sub-component for individual comments to keep main file clean
+/* -------------------------- COMMENT ITEM --------------------------- */
 const CommentItem = ({ comment }) => {
   return (
     <div className="px-4 py-3 border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors">
       <div className="flex gap-3">
-        <div className="flex-shrink-0">
-          <img
-            src={comment.author?.image || "/default-avatar.png"}
-            alt={comment.author?.username}
-            className="w-9 h-9 rounded-full object-cover border border-neutral-800"
-          />
-        </div>
+        <img
+          src={comment.author?.image || "/default-avatar.png"}
+          alt={comment.author?.username}
+          className="w-9 h-9 rounded-full object-cover border border-neutral-800"
+        />
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="font-semibold text-white text-sm">
@@ -189,13 +197,14 @@ const CommentItem = ({ comment }) => {
               {dayjs(comment.createdAt).fromNow()}
             </span>
           </div>
+
           <p className="text-neutral-300 text-sm leading-relaxed whitespace-pre-wrap">
             {comment.content}
           </p>
 
-          {/* Simple Action Bar for Comments */}
+          {/* Comment actions */}
           <div className="flex items-center gap-6 mt-2 text-neutral-500">
-            <button className="flex items-center gap-1.5 group hover:text-blue-400 transition-colors">
+            <button className="flex items-center gap-1.5 hover:text-blue-400 transition-colors">
               <MessageCircle size={14} />
               <span className="text-xs">Reply</span>
             </button>

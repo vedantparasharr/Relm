@@ -1,57 +1,72 @@
 // src/components/Post.jsx
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Heart,
   MessageCircle,
   Share2,
   MoreHorizontal,
-  Image,
-  Smile,
   BarChart2,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import axios from "axios";
+
 dayjs.extend(relativeTime);
 
-import { Link, useNavigate } from "react-router-dom";
-
 const Post = ({ post, userId, setPosts, fullPost = false }) => {
+  /* ----------------------------- STATE ----------------------------- */
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes?.length);
   const [open, setOpen] = useState(false);
-  const ContentWrapper = fullPost ? "div" : Link;
+
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
+  const ContentWrapper = fullPost ? "div" : Link;
+
+  /* --------------------------- SIDE EFFECTS ------------------------- */
+
+  // Close menu when clicking outside
   useEffect(() => {
     const handler = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handler);
 
-    return () => {
-      document.removeEventListener("mousedown", handler);
-    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  // Initialize liked state
+  useEffect(() => {
+    if (userId) {
+      setLiked(post.likes.some((u) => (u._id || u) === userId));
+    }
+  }, [post.likes, userId]);
+
+  /* ------------------------------ ACTIONS --------------------------- */
 
   const handleLike = async () => {
     if (loading) return;
+
+    // Optimistic update
     setLikesCount((prev) => (liked ? prev - 1 : prev + 1));
     setLiked((prev) => !prev);
+
     setLoading(true);
+
     try {
       const res = await axios.post(
         `http://localhost:3000/posts/${post._id}/like`,
         {},
         { withCredentials: true },
       );
-      const { likesCount, liked } = res.data;
-      setLikesCount(likesCount);
-      setLiked(liked);
+
+      setLikesCount(res.data.likesCount);
+      setLiked(res.data.liked);
     } catch (error) {
       console.error("Error liking post:", error);
     } finally {
@@ -63,25 +78,19 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
     await axios.post(
       `http://localhost:3000/posts/${post._id}/delete`,
       {},
-      {
-        withCredentials: true,
-      },
+      { withCredentials: true },
     );
-    setPosts((prev) => prev.filter((p) => p._id !== post._id));
+
+    fullPost
+      ? navigate("/home")
+      : setPosts((prev) => prev.filter((p) => p._id !== post._id));
   };
 
-  useEffect(() => {
-    if (userId) {
-      setLiked(post.likes.some((u) => (u._id || u) === userId));
-    }
-  }, [post.likes, userId]);
-
+  /* ------------------------------- UI ------------------------------- */
   return (
-    <article
-      key={post._id}
-      className="px-4 py-4 sm:rounded-xl bg-neutral-900/30 border border-neutral-800/60 hover:bg-neutral-900/50 transition-colors cursor-pointer"
-    >
+    <article className="px-4 py-4 sm:rounded-xl bg-neutral-900/30 border border-neutral-800/60 hover:bg-neutral-900/50 transition-colors cursor-pointer">
       <div className="flex gap-4">
+
         {/* Avatar */}
         <div className="flex-shrink-0">
           <img
@@ -93,6 +102,7 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
+
           {/* Header */}
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2 overflow-hidden">
@@ -100,13 +110,15 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
                 {post.author.name}
               </span>
               <span className="text-neutral-500 text-sm truncate">
-               @{post.author.username}
+                @{post.author.username}
               </span>
               <span className="text-neutral-600 text-[10px]">•</span>
               <span className="text-neutral-500 text-sm">
                 {dayjs(post.createdAt).fromNow()}
               </span>
             </div>
+
+            {/* Menu */}
             <div ref={menuRef} className="relative">
               <button
                 onClick={(e) => {
@@ -128,6 +140,7 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
                       Delete
                     </button>
                   )}
+
                   <p className="w-full text-left px-4 py-2 text-sm text-neutral-400 hover:bg-neutral-900">
                     Soon
                   </p>
@@ -136,10 +149,15 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
             </div>
           </div>
 
-          {/* Body Text */}
-          <ContentWrapper to={`/post/${post._id}`} className="block cursor-pointer">
+          {/* Body */}
+          <ContentWrapper
+            to={`/post/${post._id}`}
+            className="block cursor-pointer"
+          >
             <p className="text-neutral-200 text-[15px] leading-relaxed mb-3 whitespace-pre-wrap">
-              {fullPost? (post.content) : post.content.length > 100 ? (
+              {fullPost ? (
+                post.content
+              ) : post.content.length > 100 ? (
                 <>
                   {post.content.slice(0, 100)}
                   {"... "}
@@ -152,7 +170,7 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
               )}
             </p>
 
-            {/* Optional Image Attachment */}
+            {/* Optional image */}
             {post.image && (
               <div className="mb-3 rounded-lg overflow-hidden border border-neutral-800">
                 <img
@@ -164,8 +182,9 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
             )}
           </ContentWrapper>
 
-          {/* Action Bar */}
+          {/* Action bar */}
           <div className="flex items-center justify-between text-neutral-500 max-w-md mt-2">
+
             <button className="flex items-center gap-2 group hover:text-blue-400 transition-colors">
               <div className="p-1.5 rounded-full group-hover:bg-blue-500/10 transition-colors">
                 <MessageCircle size={18} />
@@ -186,8 +205,10 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
             >
               <div className="p-1.5 rounded-full group-hover:bg-pink-500/10 transition-colors">
                 <Heart
-                  className={`transition-colors ${liked ? "text-pink-500 fill-pink-500" : "text-neutral-500"}`}
                   size={18}
+                  className={`transition-colors ${
+                    liked ? "text-pink-500 fill-pink-500" : "text-neutral-500"
+                  }`}
                 />
               </div>
               <span className="text-xs">{likesCount}</span>

@@ -1,31 +1,39 @@
 import React, { useEffect, useState } from "react";
-import Nav from "../components/Nav";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+import Nav from "../components/Nav";
+
 const Settings = () => {
+  /* ----------------------------- ROUTER ----------------------------- */
+  const navigate = useNavigate();
+
+  /* ------------------------------ STATE ----------------------------- */
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
-
-  // Display values (for header - only update on save)
+  // Display values (shown in header — update only after save)
   const [displayName, setDisplayName] = useState("");
   const [displayUsername, setDisplayUsername] = useState("");
   const [displayBio, setDisplayBio] = useState("");
   const [displayImage, setDisplayImage] = useState("");
 
-  // Form values (what user is editing)
+  // Editable form values
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
+  const [email, setEmail] = useState("");
+
+  // Password fields
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
+
+  // Image upload
   const [imageFile, setImageFile] = useState(null);
 
+  /* --------------------------- FETCH USER --------------------------- */
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -33,8 +41,8 @@ const Settings = () => {
           withCredentials: true,
         });
         setUser(res.data.user);
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -43,35 +51,35 @@ const Settings = () => {
     fetchProfile();
   }, []);
 
+  /* ---------------------- INITIALIZE FORM DATA ---------------------- */
   useEffect(() => {
-    if (user) {
-      // Set both display and form values initially
-      const userName = user.name || "";
-      const userUsername = user.username || "";
-      const userBio = user.bio || "";
-      const userImage = user.image || "/default-avatar.png";
+    if (!user) return;
 
-      // Display values
-      setDisplayName(userName);
-      setDisplayUsername(userUsername);
-      setDisplayBio(userBio);
-      setDisplayImage(userImage);
+    const userName = user.name || "";
+    const userUsername = user.username || "";
+    const userBio = user.bio || "";
+    const userImage = user.image || "/default-avatar.png";
 
-      // Form values
-      setName(userName);
-      setUsername(userUsername);
-      setEmail(user.email || "");
-      setBio(userBio);
+    // Display values
+    setDisplayName(userName);
+    setDisplayUsername(userUsername);
+    setDisplayBio(userBio);
+    setDisplayImage(userImage);
 
-      // Convert ISO date to yyyy-MM-dd format
-      if (user.dateOfBirth) {
-        const date = new Date(user.dateOfBirth);
-        const formattedDate = date.toISOString().split("T")[0];
-        setDateOfBirth(formattedDate);
-      }
+    // Form values
+    setName(userName);
+    setUsername(userUsername);
+    setBio(userBio);
+    setEmail(user.email || "");
+
+    // Convert ISO date → yyyy-MM-dd
+    if (user.dateOfBirth) {
+      const date = new Date(user.dateOfBirth);
+      setDateOfBirth(date.toISOString().split("T")[0]);
     }
   }, [user]);
 
+  /* --------------------------- SAVE SETTINGS ------------------------- */
   const handleSubmission = async () => {
     try {
       const formData = new FormData();
@@ -93,40 +101,41 @@ const Settings = () => {
         formData,
         {
           withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         },
       );
-      
-      // Update display values only after successful save
+
+      // Update header display only after successful save
       setDisplayName(res.data.user.name);
       setDisplayUsername(res.data.user.username);
       setDisplayBio(res.data.user.bio);
       setDisplayImage(res.data.user.image);
 
+      // Clear sensitive fields
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setImageFile(null);
 
       navigate("/profile");
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       alert("Failed to save settings");
     }
   };
 
+  /* --------------------------- CANCEL EDIT -------------------------- */
   const handleCancel = () => {
-    // Reset form values to display values (undo changes)
     setName(displayName);
     setUsername(displayUsername);
     setBio(displayBio);
+
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
   };
 
+  /* ---------------------------- LOADING UI --------------------------- */
   if (loading) {
     return (
       <main className="min-h-screen bg-black flex items-center justify-center text-zinc-400">
@@ -135,11 +144,13 @@ const Settings = () => {
     );
   }
 
+  /* ------------------------------- UI ------------------------------- */
   return (
     <main className="flex flex-col min-h-screen bg-black text-white tracking-tight space-y-10 pb-10">
       <Nav />
 
       <section className="max-w-3xl mx-auto w-full bg-zinc-900 rounded-xl">
+        {/* Header */}
         <div className="p-6 border-b border-zinc-800">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-5">
@@ -161,9 +172,7 @@ const Settings = () => {
                       if (!file) return;
 
                       setImageFile(file);
-
-                      // preview immediately
-                      setDisplayImage(URL.createObjectURL(file));
+                      setDisplayImage(URL.createObjectURL(file)); // preview
                     }}
                   />
                 </label>
@@ -192,33 +201,19 @@ const Settings = () => {
           </div>
         </div>
 
+        {/* Form */}
         <div className="p-6 my-2 space-y-4">
-          <h2 className="text-xl font-medium tracking-tight text-zinc-100">
+          <h2 className="text-xl font-medium text-zinc-100">
             Account Settings
           </h2>
 
+          {/* Name + Username */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-zinc-400">Full name</label>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                type="text"
-                className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 outline-none focus:border-blue-400 transition"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-zinc-400">Username</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 outline-none focus:border-blue-400 transition"
-              />
-            </div>
+            <InputField label="Full name" value={name} onChange={setName} />
+            <InputField label="Username" value={username} onChange={setUsername} />
           </div>
 
+          {/* Email + DOB */}
           <div className="flex gap-4">
             <div className="flex flex-col gap-1 w-full">
               <label className="text-sm text-zinc-400">Email</label>
@@ -232,17 +227,19 @@ const Settings = () => {
                 Email changes require verification.
               </p>
             </div>
+
             <div className="flex flex-col gap-1 w-full">
               <label className="text-sm text-zinc-400">Date of Birth</label>
               <input
+                type="date"
                 value={dateOfBirth}
                 onChange={(e) => setDateOfBirth(e.target.value)}
-                type="date"
-                className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-zinc-200 outline-none focus:border-blue-400 transition"
+                className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 outline-none focus:border-blue-400 transition"
               />
             </div>
           </div>
 
+          {/* Bio */}
           <div className="flex flex-col gap-1">
             <label className="text-sm text-zinc-400">Bio</label>
             <textarea
@@ -252,11 +249,10 @@ const Settings = () => {
               maxLength={120}
               className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 resize-none outline-none focus:border-blue-400 transition"
             />
-            <p className="text-xs text-zinc-500 text-right">
-              {bio.length} / 120
-            </p>
+            <p className="text-xs text-zinc-500 text-right">{bio.length} / 120</p>
           </div>
 
+          {/* Password */}
           <div className="border-t border-zinc-800 pt-6 space-y-4">
             <h3 className="text-sm font-medium text-zinc-300">
               Change password
@@ -269,7 +265,6 @@ const Settings = () => {
               placeholder="Current password"
               className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 outline-none focus:border-blue-400 transition"
             />
-
             <input
               type="password"
               value={newPassword}
@@ -277,7 +272,6 @@ const Settings = () => {
               placeholder="New password"
               className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 outline-none focus:border-blue-400 transition"
             />
-
             <input
               type="password"
               value={confirmPassword}
@@ -287,7 +281,8 @@ const Settings = () => {
             />
           </div>
 
-          <div className="flex items-center justify-between pt-6">
+          {/* Save */}
+          <div className="pt-6">
             <button
               onClick={handleSubmission}
               className="bg-blue-600 hover:bg-blue-500 transition px-6 py-2 rounded-md font-medium"
@@ -300,5 +295,18 @@ const Settings = () => {
     </main>
   );
 };
+
+/* --------------------------- SMALL INPUT --------------------------- */
+const InputField = ({ label, value, onChange }) => (
+  <div className="flex flex-col gap-1">
+    <label className="text-sm text-zinc-400">{label}</label>
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 outline-none focus:border-blue-400 transition"
+    />
+  </div>
+);
 
 export default Settings;

@@ -23,6 +23,7 @@ const Post = ({ post, userId, setPosts, fullPost = false }) => {
 
   const menuRef = useRef(null);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const ContentWrapper = fullPost ? "div" : Link;
 

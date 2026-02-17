@@ -12,7 +12,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 dayjs.extend(relativeTime);
 
-const Post = () => {
+const Post = ({onLogout}) => {
   /* ----------------------------- ROUTER ----------------------------- */
   const { id } = useParams();
   const navigate = useNavigate();
@@ -108,7 +108,7 @@ const Post = () => {
   /* ------------------------------- UI ------------------------------- */
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
-      <Nav />
+      <Nav onLogout={onLogout} />
 
       <main className="max-w-2xl mx-auto pt-4 pb-20 px-0 sm:px-4">
         {/* Header */}

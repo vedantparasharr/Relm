@@ -8,7 +8,7 @@ import PostCard from "../components/PostCard";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const Profile = () => {
+const Profile = ({onLogout}) => {
   /* ----------------------------- STATE ----------------------------- */
   const [activeTab, setActiveTab] = useState("posts");
   const [user, setUser] = useState(null);
@@ -76,7 +76,7 @@ const Profile = () => {
   /* ------------------------------- UI -------------------------------- */
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
-      <Nav />
+      <Nav onLogout={onLogout} />
 
       <main className="max-w-2xl mx-auto pt-4 pb-20 px-0 sm:px-4">
         {/* Profile summary */}

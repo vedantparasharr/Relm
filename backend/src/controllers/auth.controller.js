@@ -49,7 +49,7 @@ const handleSignout = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? "none" : "lax",
+    sameSite: "none",
   });
 
   res.status(200).json({ message: "Logged out" });
@@ -198,7 +198,7 @@ const handleSignin = async (req, res) => {
     httpOnly: true,
     maxAge,
     secure: isProd,
-    sameSite: isProd ? "none" : "lax",
+    sameSite: "none",
   });
 
   res.json();

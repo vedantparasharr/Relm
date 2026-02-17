@@ -6,7 +6,7 @@ import Nav from "../components/Nav";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const Settings = () => {
+const Settings = (onLogout) => {
   /* ----------------------------- ROUTER ----------------------------- */
   const navigate = useNavigate();
 
@@ -149,7 +149,7 @@ const Settings = () => {
   /* ------------------------------- UI ------------------------------- */
   return (
     <main className="flex flex-col min-h-screen bg-black text-white tracking-tight space-y-10 pb-10">
-      <Nav />
+      <Nav onLogout={onLogout} />
 
       <section className="max-w-3xl mx-auto w-full bg-zinc-900 rounded-xl">
         {/* Header */}

@@ -5,7 +5,7 @@ import Nav from "../components/Nav";
 import PostCard from "../components/PostCard";
 import { getProfile, getPosts, createPost } from "../services/homeService";
 
-const Home = () => {
+const Home = ({onLogout}) => {
   /* ----------------------------- STATE ----------------------------- */
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -66,7 +66,7 @@ const Home = () => {
   /* ------------------------------- UI ------------------------------- */
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
-      <Nav />
+      <Nav onLogout={onLogout} />
 
       <main className="max-w-2xl mx-auto pt-4 pb-20 px-0 sm:px-4">
         {/* Create post box */}

@@ -1,6 +1,6 @@
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
 import Signin from "./pages/Signin";
@@ -12,29 +12,30 @@ import Post from "./pages/Post";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GuestRoute from "./components/GuestRoute";
 
+// IMPORTANT: set once (NOT inside component)
+axios.defaults.withCredentials = true;
+
 const App = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  axios.defaults.withCredentials = true;
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // endpoint that requires login
-        await axios.get("/profile");
-        setIsAuthenticated(true);
-      } catch (err) {
-        setIsAuthenticated(false);
-      } finally {
-        setAuthChecked(true);
-      }
-    };
-
-    checkAuth();
+  // Reusable auth checker
+  const checkAuth = useCallback(async () => {
+    try {
+      await axios.get("/profile"); // protected endpoint
+      setIsAuthenticated(true);
+    } catch {
+      setIsAuthenticated(false);
+    } finally {
+      setAuthChecked(true);
+    }
   }, []);
 
-  // Prevent routes rendering before auth check
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  // Prevent rendering before auth is known
   if (!authChecked) {
     return <div>Loading...</div>;
   }
@@ -58,7 +59,7 @@ const App = () => {
         path="/signin"
         element={
           <GuestRoute isAuthenticated={isAuthenticated}>
-            <Signin />
+            <Signin onAuthSuccess={checkAuth} />
           </GuestRoute>
         }
       />
@@ -68,7 +69,7 @@ const App = () => {
         path="/home"
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Home />
+            <Home onLogout={checkAuth} />
           </ProtectedRoute>
         }
       />
@@ -77,7 +78,7 @@ const App = () => {
         path="/profile"
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Profile />
+            <Profile onLogout={checkAuth} />
           </ProtectedRoute>
         }
       />
@@ -86,7 +87,7 @@ const App = () => {
         path="/profile/settings"
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Settings />
+            <Settings onLogout={checkAuth} />
           </ProtectedRoute>
         }
       />
@@ -95,12 +96,12 @@ const App = () => {
         path="/post/:id"
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Post />
+            <Post onLogout={checkAuth} />
           </ProtectedRoute>
         }
       />
 
-      {/* Fallback */}
+      {/* fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

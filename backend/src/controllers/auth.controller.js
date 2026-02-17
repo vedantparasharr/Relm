@@ -48,7 +48,7 @@ const handleSignout = (req, res) => {
 
   res.clearCookie("token", {
     httpOnly: true,
-    secure: isProd,
+    secure: true,
     sameSite: "none",
   });
 
@@ -123,9 +123,9 @@ const handleVerifyEmail = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      maxAge,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
+      secure: true, // required for SameSite=None
+      sameSite: "None", // required for cross-origin cookies
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     return res
@@ -156,9 +156,9 @@ const handleGuest = async (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    maxAge,
-    secure: isProd,
-    sameSite: isProd ? "none" : "lax",
+    secure: true, // required for SameSite=None
+    sameSite: "None", // required for cross-origin cookies
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.redirect("/home");
@@ -196,9 +196,9 @@ const handleSignin = async (req, res) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    maxAge,
-    secure: isProd,
-    sameSite: "none",
+    secure: true, // required for SameSite=None
+    sameSite: "None", // required for cross-origin cookies
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   res.json();

@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
-const Nav = ({onLogout}) => {
+const Nav = ({ onLogout }) => {
   /* ------------------------------ STATE ----------------------------- */
   const [profilePicture, setProfilePicture] = useState("/default-avatar.png");
   const [open, setOpen] = useState(false);
@@ -43,8 +43,9 @@ const Nav = ({onLogout}) => {
 
   /* ------------------------------ ACTIONS --------------------------- */
   const handleLogout = async () => {
-    await axios.post("/logout");
-
+    await axios.get(`${API_URL}/auth/signout`, {
+      withCredentials: true,
+    });
     // refresh auth state
     await onLogout();
 

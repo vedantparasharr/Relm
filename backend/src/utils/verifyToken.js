@@ -18,8 +18,8 @@ const verifyToken = (req, res, next) => {
 
     res.clearCookie("token", {
       httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
     });
     return res.status(401).render("authRequired", {
       title: "Sign in required!",

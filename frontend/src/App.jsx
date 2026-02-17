@@ -12,8 +12,8 @@ import Post from "./pages/Post";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GuestRoute from "./components/GuestRoute";
 
-// IMPORTANT: set once (NOT inside component)
 axios.defaults.withCredentials = true;
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const App = () => {
   const [authChecked, setAuthChecked] = useState(false);

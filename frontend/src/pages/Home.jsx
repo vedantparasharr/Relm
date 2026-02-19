@@ -66,6 +66,7 @@ const Home = ({onLogout}) => {
   /* ------------------------------- UI ------------------------------- */
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
+      <title>Home | Relm</title>
       <Nav onLogout={onLogout} />
 
       <main className="max-w-2xl mx-auto pt-4 pb-20 px-0 sm:px-4">

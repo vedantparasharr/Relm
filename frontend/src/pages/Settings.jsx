@@ -149,6 +149,7 @@ const Settings = (onLogout) => {
   /* ------------------------------- UI ------------------------------- */
   return (
     <main className="flex flex-col min-h-screen bg-black text-white tracking-tight space-y-10 pb-10">
+      <title>Account Settings | Relm</title>
       <Nav onLogout={onLogout} />
 
       <section className="max-w-3xl mx-auto w-full bg-zinc-900 rounded-xl">

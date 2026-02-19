@@ -112,6 +112,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800 flex items-center justify-center p-4">
+      <title>Join Relm | Relm</title>
       <div className="w-full max-w-md">
 
         {/* Header */}

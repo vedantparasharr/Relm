@@ -19,18 +19,6 @@ const uploadToSupabase = require("../utils/uploadToSupabase");
 // ======================
 // Render Pages
 // ======================
-const renderSignup = (req, res) => {
-  res.render("index");
-};
-
-const renderSignin = (req, res) => {
-  res.render("signin");
-};
-
-const renderForget = (req, res) => {
-  res.render("forget");
-};
-
 const renderReset = async (req, res) => {
   const user = await userModel.findById(req.params.user);
   if (!user) return res.status(404).send("User does not exist");

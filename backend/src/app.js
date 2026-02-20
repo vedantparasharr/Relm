@@ -86,17 +86,6 @@ const verifyToken = require("./utils/verifyToken");
 // Routes
 // ======================
 
-// Landing page
-app.get("/", (req, res) => {
-  const user = checkAuth(req);
-  if (user) return res.redirect("/home");
-
-  return res.render("authRequired", {
-    title: "Welcome to Relm",
-    message: "Sign in, create an account, or continue as guest",
-  });
-});
-
 // Home feed (Protected)
 app.get("/home", verifyToken, async (req, res) => {
   try {

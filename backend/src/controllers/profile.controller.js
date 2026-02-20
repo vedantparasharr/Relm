@@ -68,12 +68,6 @@ const renderEdit = async (req, res) => {
 // ======================
 // Render Settings Page
 // ======================
-const renderSettings = async (req, res) => {
-  const user = await userModel.findById(req.user.userId);
-  if (!user) return res.status(404).send("User not found");
-
-  res.render("settings", { user, dayjs });
-};
 
 // ======================
 // Handle Profile Edit

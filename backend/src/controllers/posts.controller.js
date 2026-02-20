@@ -10,14 +10,6 @@ const userModel = require("../models/userModel");
 const postModel = require("../models/postModel");
 
 // ======================
-// Render Create Post Page
-// ======================
-const renderNew = async (req, res) => {
-  const user = await userModel.findById(req.user.userId);
-  res.render("createPost", { user });
-};
-
-// ======================
 // Render Single Post Page
 // ======================
 const renderPost = async (req, res) => {

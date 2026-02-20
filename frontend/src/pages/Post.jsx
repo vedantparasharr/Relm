@@ -12,7 +12,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 dayjs.extend(relativeTime);
 
-const Post = ({onLogout}) => {
+const Post = ({ onLogout }) => {
   /* ----------------------------- ROUTER ----------------------------- */
   const { id } = useParams();
   const navigate = useNavigate();
@@ -81,6 +81,12 @@ const Post = ({onLogout}) => {
     }
   };
 
+  /* ---------------------------- EDIT POST -------------------------- */
+  const [isEditing, setIsEditing] = useState(false);
+  const handleEdit = () => {
+    setIsEditing((prev) => !prev);
+  };
+
   /* ---------------------------- LOADING UI -------------------------- */
   if (loading) {
     return (
@@ -112,19 +118,27 @@ const Post = ({onLogout}) => {
 
       <main className="max-w-2xl mx-auto pt-4 pb-20 px-0 sm:px-4">
         {/* Header */}
-        <div className="flex items-center gap-4 px-4 mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-full hover:bg-neutral-900 transition-colors text-neutral-400 hover:text-white"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h2 className="text-xl font-bold">Post</h2>
+        <div className="flex items-center gap-4 px-4 mb-4 justify-between ">
+          <div className="flex ">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-full hover:bg-neutral-900 transition-colors text-neutral-400 hover:text-white"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <h2 className="text-xl font-bold">Post</h2>
+          </div>
+          <button onClick={handleEdit}>Edit Post</button>
         </div>
 
         {/* Main post */}
         <div className="mb-6">
-          <PostCard post={post} userId={currentUser?._id} fullPost />
+          <PostCard
+            post={post}
+            userId={currentUser?._id}
+            fullPost
+            isEditing={isEditing}
+          />
         </div>
 
         {/* Comment input */}

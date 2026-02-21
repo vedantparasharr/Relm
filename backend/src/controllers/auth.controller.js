@@ -29,7 +29,7 @@ const renderReset = async (req, res) => {
 };
 
 // ======================
-// Handle Signout
+// Handle Signout hehe
 // ======================
 const handleSignout = (req, res) => {
   const isProd = process.env.NODE_ENV === "production";

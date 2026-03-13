@@ -5,7 +5,6 @@ const verifyToken = require("../utils/verifyToken");
 const {
   renderEdit,
   renderPost,
-  renderNew,
   handleEdit,
   handleComment,
   handleDeleteComment,
@@ -13,8 +12,6 @@ const {
   handlePost,
   handleDelete,
 } = require("../controllers/posts.controller");
-
-router.get("/new", verifyToken, renderNew);
 router.get("/:id", verifyToken, renderPost);
 router.get("/:id/edit", verifyToken, renderEdit);
 

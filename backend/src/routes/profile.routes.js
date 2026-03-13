@@ -17,7 +17,6 @@ router.get("/about", verifyToken, renderAbout);
 router.get("/edit", verifyToken, renderEdit);
 router.get("/settings", verifyToken, renderSettings);
 
-router.post("/settings", verifyToken, upload.single("image"), handleEdit);
 router.post("/settings", verifyToken, upload.single("image"), handleSettings);
 
 module.exports = router;

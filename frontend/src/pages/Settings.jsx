@@ -6,7 +6,7 @@ import Nav from "../components/Nav";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const Settings = (onLogout) => {
+const Settings = ({ onLogout }) => {
   /* ----------------------------- ROUTER ----------------------------- */
   const navigate = useNavigate();
 

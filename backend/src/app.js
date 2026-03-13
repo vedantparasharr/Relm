@@ -27,7 +27,7 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://relmsocial.vercel.app"],
+    origin: ["http://localhost:5174", "https://relmsocial.vercel.app"],
     credentials: true,
   }),
 );

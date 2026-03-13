@@ -146,7 +146,7 @@ const handleGuest = async (req, res) => {
     httpOnly: true,
     secure: true, // required for SameSite=None
     sameSite: "None", // required for cross-origin cookies
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 60 * 60 * 1000, // 1 hour, matching JWT expiry
   });
 
   res.redirect("/home");
@@ -186,7 +186,7 @@ const handleSignin = async (req, res) => {
     httpOnly: true,
     secure: true, // required for SameSite=None
     sameSite: "None", // required for cross-origin cookies
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge,
   });
 
   res.json();
@@ -209,7 +209,7 @@ const handleForget = async (req, res) => {
   user.otpExpires = undefined;
   await user.save();
 
-  res.render("verify", { user: user._id });
+  res.json({ next: "verify", userId: user._id });
 };
 
 // ======================
@@ -236,9 +236,6 @@ const handleReset = async (req, res) => {
 // Exports
 // ======================
 module.exports = {
-  renderSignup,
-  renderSignin,
-  renderForget,
   renderReset,
   handleSignout,
   handleSignup,

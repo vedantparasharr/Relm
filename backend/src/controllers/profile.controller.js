@@ -1,7 +1,6 @@
 // ======================
 // Core & Third-Party Imports
 // ======================
-const dayjs = require("dayjs");
 const bcrypt = require("bcrypt");
 
 // ======================
@@ -62,12 +61,18 @@ const renderEdit = async (req, res) => {
   const user = await userModel.findById(req.user.userId);
   if (!user) return res.status(404).send("User not found");
 
-  res.render("editProfile", { user, dayjs });
+  res.json({ user });
 };
 
 // ======================
 // Render Settings Page
 // ======================
+const renderSettings = async (req, res) => {
+  const user = await userModel.findById(req.user.userId);
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  res.json({ user });
+};
 
 // ======================
 // Handle Profile Edit

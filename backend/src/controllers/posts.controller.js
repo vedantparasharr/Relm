@@ -1,9 +1,4 @@
 // ======================
-// Third-Party Utilities
-// ======================
-const dayjs = require("dayjs");
-
-// ======================
 // Database Models
 // ======================
 const userModel = require("../models/userModel");
@@ -34,7 +29,7 @@ const renderEdit = async (req, res) => {
   if (post.author.toString() !== req.user.userId)
     return res.status(403).send("Unauthorized");
 
-  res.render("editPost", { post, user });
+  res.json({ post, user });
 };
 
 // ======================
@@ -168,7 +163,6 @@ const handleLike = async (req, res) => {
 // Exports
 // ======================
 module.exports = {
-  renderNew,
   renderEdit,
   renderPost,
   handlePost,

@@ -3,9 +3,6 @@ const router = express.Router();
 const upload = require("../config/multer");
 
 const {
-  renderSignup,
-  renderSignin,
-  renderForget,
   renderReset,
   handleSignout,
   handleSignup,
@@ -15,16 +12,12 @@ const {
   handleForget,
   handleReset,
 } = require("../controllers/auth.controller");
-const app = require("../app");
 const verifyToken = require("../utils/verifyToken");
 
 // ==================================
 // GET REQUESTS
 // ==================================
 
-router.get("/signup", renderSignup);
-router.get("/signin", renderSignin);
-router.get("/forget", renderForget);
 router.get("/reset-password/:user", renderReset);
 router.get("/signout", handleSignout);
 // =============================
